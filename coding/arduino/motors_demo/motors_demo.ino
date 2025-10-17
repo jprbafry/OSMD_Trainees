@@ -18,10 +18,10 @@
 
 // === Constants ===
 // TODO: Change if necessary (how many steps the motor does per degree depends on the setup)
-const float DET_AZ_STEPS_PER_DEG = 12.0;
-const float DET_RAD_STEPS_PER_DEG = 10.0;
-const float LIGHT_AZ_STEPS_PER_DEG = 12.0;
-const float LIGHT_RAD_STEPS_PER_DEG = 10.0;
+const float DET_AZ_STEPS_PER_DEG = 24.0;
+const float DET_RAD_STEPS_PER_DEG = 20.0;
+const float LIGHT_AZ_STEPS_PER_DEG = 24.0;
+const float LIGHT_RAD_STEPS_PER_DEG = 20.0;
 
 
 const unsigned int NUM_MOTORS = 4; // How many motors do we have
@@ -63,7 +63,7 @@ Motor motors[NUM_MOTORS];
 ThreadController controller = ThreadController();
 
 
-#define MOTION_PERIOD 20
+#define MOTION_PERIOD 2
 #define RECEPTION_PERIOD 5
 #define TRANSMISSION_PERIOD 40
 
@@ -76,11 +76,11 @@ Thread threadMoveM4  = Thread();
 Thread threadSend    = Thread();
 
 // --- Shared variables ---
-float des_light_azi = 0.0, des_light_pol = 0.0;
-float des_detector_azi = 0.0, des_detector_pol = 0.0;
+float des_light_azi = 180.0, des_light_pol = 90.0;
+float des_detector_azi = 180.0, des_detector_pol = 90.0;
 
-float cur_light_azi = 0.0, cur_light_pol = 0.0;
-float cur_detector_azi = 0.0, cur_detector_pol = 0.0;
+float cur_light_azi = 180.0, cur_light_pol = 90.0;
+float cur_detector_azi = 180.0, cur_detector_pol = 90.0;
 
 String inputBuffer = "";
 
@@ -105,7 +105,7 @@ void sendTask();
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(19200);
   while (!Serial) { ; }  // Wait for Serial ready
 
 
@@ -113,10 +113,10 @@ void setup() {
 
 
   // initialize motor table (match pins and initial 8 degrees)
-  motors[DETECTOR_AZ]  = {"DET_AZ",  DET_AZ_STEP,  DET_AZ_DIR, DET_AZ_STEPS_PER_DEG,  long(8 * DET_AZ_STEPS_PER_DEG)};
-  motors[DETECTOR_RAD] = {"DET_RAD", DET_RAD_STEP, DET_RAD_DIR, DET_RAD_STEPS_PER_DEG, long(8 * DET_RAD_STEPS_PER_DEG)};
-  motors[LIGHT_AZ]     = {"LIGHT_AZ",LIGHT_AZ_STEP, LIGHT_AZ_DIR, LIGHT_AZ_STEPS_PER_DEG, long(8 * LIGHT_AZ_STEPS_PER_DEG)};
-  motors[LIGHT_RAD]    = {"LIGHT_RAD",LIGHT_RAD_STEP, LIGHT_RAD_DIR, LIGHT_RAD_STEPS_PER_DEG, long(8 * LIGHT_RAD_STEPS_PER_DEG)};
+  motors[DETECTOR_AZ]  = {"DET_AZ",  DET_AZ_STEP,  DET_AZ_DIR, DET_AZ_STEPS_PER_DEG,  long(cur_detector_azi * DET_AZ_STEPS_PER_DEG)};
+  motors[DETECTOR_RAD] = {"DET_RAD", DET_RAD_STEP, DET_RAD_DIR, DET_RAD_STEPS_PER_DEG, long(cur_detector_pol * DET_RAD_STEPS_PER_DEG)};
+  motors[LIGHT_AZ]     = {"LIGHT_AZ",LIGHT_AZ_STEP, LIGHT_AZ_DIR, LIGHT_AZ_STEPS_PER_DEG, long(cur_light_azi * LIGHT_AZ_STEPS_PER_DEG)};
+  motors[LIGHT_RAD]    = {"LIGHT_RAD",LIGHT_RAD_STEP, LIGHT_RAD_DIR, LIGHT_RAD_STEPS_PER_DEG, long(cur_light_pol * LIGHT_RAD_STEPS_PER_DEG)};
 
 
   // Setup pins and encoders
@@ -173,18 +173,11 @@ void move_to_absolute(MotorAxis axis, float target_angle, float max_nb_steps) {
     long target_steps = lround(target_angle * m->steps_per_deg);
     long step_diff = target_steps - m->current_steps;
     bool direction = (step_diff >= 0);
-    long move_steps = min(abs(step_diff), max_nb_steps);
-
-    // // 🔹 Print move_steps if positive
-    // if (move_steps > 0) {
-    //     Serial.print("Moving ");
-    //     Serial.print(m->name);
-    //     Serial.print(": ");
-    //     Serial.print(move_steps);
-    //     Serial.println(" steps");
-    // }
+    //long move_steps = min(abs(step_diff), max_nb_steps);
+    long move_steps = abs(step_diff);
     
     digitalWrite(m->dir_pin, direction ? HIGH : LOW);
+    delayMicroseconds(50);
     for (long i = 0; i < move_steps; i++) {
       digitalWrite(m->step_pin, HIGH);
       delayMicroseconds(STEP_DELAY_US);
@@ -249,16 +242,20 @@ void receiveTask() {
 }
 
 void moveM1Task () {
-    move_to_absolute(LIGHT_RAD, des_light_pol, LIGHT_RAD_STEPS_PER_DEG);
+    //move_to_absolute(LIGHT_RAD, des_light_pol, LIGHT_RAD_STEPS_PER_DEG);
+    delayMicroseconds(STEP_DELAY_US);
 }
 void moveM2Task () {
-    move_to_absolute(DETECTOR_RAD, des_detector_pol, DET_RAD_STEPS_PER_DEG);
+    //move_to_absolute(DETECTOR_RAD, des_detector_pol, DET_RAD_STEPS_PER_DEG);
+    delayMicroseconds(STEP_DELAY_US);
 }
 void moveM3Task () {
     move_to_absolute(DETECTOR_AZ, des_detector_azi, DET_AZ_STEPS_PER_DEG);
+    //delayMicroseconds(STEP_DELAY_US);
 }
 void moveM4Task () {
     move_to_absolute(LIGHT_AZ, des_light_azi, LIGHT_AZ_STEPS_PER_DEG);
+    //delayMicroseconds(STEP_DELAY_US);
 }
 
 // Send desired values back to Raspberry Pi

@@ -209,33 +209,43 @@ class Panel:
 
 
     
-    def pulse_knobs_sliders(self, N=20, delay=200):
+    def pulse_knobs_sliders(self, N=60, delay=3000):
         """
         Smoothly move each desired value from its current value up to current+N,
         then back down to the original value, step by step.
         delay in milliseconds between steps.
         """
+
+
         # Store original desired values
         original_knob_vals = [k.new_des_val for k in self.knobs]
         original_slider_vals = [s.new_des_val for s in self.sliders]
 
-        # Step up
-        for step in range(1, N + 1):
+        nb_iterations = 300
+        for counter in range(nb_iterations):
+            print(f"Iteration {counter+1}/{nb_iterations}")
+            # Step up
+            step = N
             for i, k in enumerate(self.knobs):
                 k.new_des_val = original_knob_vals[i] + step
             for i, s in enumerate(self.sliders):
                 s.new_des_val = original_slider_vals[i] + step
-            self.draw()
             pygame.time.wait(delay)
 
-        # Step down
-        for step in range(N, -1, -1):
+            # Step down
+            step = -N
             for i, k in enumerate(self.knobs):
                 k.new_des_val = original_knob_vals[i] + step
             for i, s in enumerate(self.sliders):
                 s.new_des_val = original_slider_vals[i] + step
-            self.draw()
             pygame.time.wait(delay)
+        
+        for i, k in enumerate(self.knobs):
+            k.new_des_val = original_knob_vals[i]
+        for i, s in enumerate(self.sliders):
+            s.new_des_val = original_slider_vals[i]
+        pygame.time.wait(delay)
+        self.draw()
 
     def create_controls(self):
         knobs = []
