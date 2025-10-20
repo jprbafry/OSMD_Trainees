@@ -152,17 +152,20 @@ class Button:
         self.y = y
         self.size = size
         self.font = font
-        self.text = "PRESS"
+        self.text_start = "START"
+        self.text_stop = "STOP"
+        self.text = self.text_start
         self.action = action
         self.color_idle = color_idle
         self.color_active = color_active
         self.active = False
+        self.running = False  # <-- toggle state flag
+        self.stop_flag = False  # <-- to signal the action to stop
         self.rect = pygame.Rect(x - size//2, y - size//2, size, size)
 
     def draw(self, surface):
-        color = self.color_active if self.active else self.color_idle
+        color = self.color_active if self.running else self.color_idle
         pygame.draw.rect(surface, color, self.rect)
-        # Draw text
         text_surf = self.font.render(self.text, True, (0,0,0))
         text_rect = text_surf.get_rect(center=(self.x, self.y))
         surface.blit(text_surf, text_rect)
@@ -171,14 +174,23 @@ class Button:
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = pygame.mouse.get_pos()
             if self.rect.collidepoint(mx, my):
-                self.active = True
+                if not self.running:
+                    # --- START ---
+                    self.running = True
+                    self.text = self.text_stop
+                    self.stop_flag = False
 
-                # Run the action in a separate thread so it doesn't block Pygame
-                def run_action():
-                    self.action()
-                    self.active = False
+                    def run_action():
+                        self.action(self)  # pass button instance so action can read stop_flag
+                        # when done or stopped:
+                        self.running = False
+                        self.text = self.text_start
 
-                threading.Thread(target=run_action, daemon=True).start()
+                    threading.Thread(target=run_action, daemon=True).start()
+                else:
+                    # --- STOP ---
+                    self.stop_flag = True
+
 
 # PANEL
 class Panel:
@@ -208,44 +220,40 @@ class Panel:
         self.buttons.append(Button(btn_x, btn_y, btn_size, self.font, self.pulse_knobs_sliders))
 
 
-    
-    def pulse_knobs_sliders(self, N=60, delay=3000):
-        """
-        Smoothly move each desired value from its current value up to current+N,
-        then back down to the original value, step by step.
-        delay in milliseconds between steps.
-        """
-
-
-        # Store original desired values
+    def pulse_knobs_sliders(self, button, N=60, delay=3000):
+        """Pulses knobs and sliders until button.stop_flag becomes True."""
         original_knob_vals = [k.new_des_val for k in self.knobs]
         original_slider_vals = [s.new_des_val for s in self.sliders]
 
         nb_iterations = 300
         for counter in range(nb_iterations):
+
             print(f"Iteration {counter+1}/{nb_iterations}")
-            # Step up
             step = N
             for i, k in enumerate(self.knobs):
                 k.new_des_val = original_knob_vals[i] + step
             for i, s in enumerate(self.sliders):
                 s.new_des_val = original_slider_vals[i] + step
             pygame.time.wait(delay)
+            if button.stop_flag:
+                break
 
-            # Step down
             step = -N
             for i, k in enumerate(self.knobs):
                 k.new_des_val = original_knob_vals[i] + step
             for i, s in enumerate(self.sliders):
                 s.new_des_val = original_slider_vals[i] + step
             pygame.time.wait(delay)
-        
+            if button.stop_flag:
+                break
+
+        # Restore original values when done
         for i, k in enumerate(self.knobs):
             k.new_des_val = original_knob_vals[i]
         for i, s in enumerate(self.sliders):
             s.new_des_val = original_slider_vals[i]
-        pygame.time.wait(delay)
         self.draw()
+
 
     def create_controls(self):
         knobs = []
