@@ -10,6 +10,7 @@ def parse_args():
     parser.add_argument("--height", type=int, default=400, help="Panel height in pixels")
     parser.add_argument("--simulate", "-s", action="store_true", help="Run in simulation (file-based) mode instead of real serial")
     parser.add_argument("--port", "-p",default="/dev/ttyACM0", help="Serial port to use when not simulating (e.g. /dev/ttyACM0)")
+    parser.add_argument("--routine", "-r",default="all", help="Routine: all | light | detector")
     parser.add_argument("--baud", "-b",type=int, default=19200, help="Baud rate for the serial connection")
     parser.add_argument("--debug", "-d", action="store_true", help="Debug mode?")
     return parser.parse_args()
@@ -19,7 +20,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     # Create the control panel
-    ctrl_panel = Panel(width=args.width, height=args.height, fps=60)
+    ctrl_panel = Panel(width=args.width, height=args.height, fps=60, routine=args.routine)
 
     # Create SerialManager (name='A')
     sm = SerialManager(simulate=args.simulate, name='A', port=args.port, baud=args.baud, debug=args.debug)

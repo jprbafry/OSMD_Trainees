@@ -195,7 +195,7 @@ class Button:
 # PANEL
 class Panel:
     """A Panel containing multiple knobs and sliders grouped logically"""
-    def __init__(self, width=800, height=400, fps=60):
+    def __init__(self, width=800, height=400, fps=60, routine="all"):
         pygame.init()
         self.width = width
         self.height = height
@@ -210,6 +210,7 @@ class Panel:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 24)
         self.fps = fps
+        self.routine = routine
         self.running = True
         self.knobs, self.sliders, self.legends, self.titles = self.create_controls()
         self.buttons = []
@@ -225,24 +226,41 @@ class Panel:
         original_knob_vals = [k.new_des_val for k in self.knobs]
         original_slider_vals = [s.new_des_val for s in self.sliders]
 
+        flag_light = False
+        flag_detector = False
+        if self.routine == "all":
+            flag_light = True
+            flag_detector = True
+        elif self.routine == "light":
+            flag_light = True
+        elif self.routine == "detector":
+            flag_detector = True
+
+        print(f"ROUTINE ... Light: {flag_light} | Detector: {flag_detector}")
+        # Knob/Slidres Indexes ... Light: 0  Detector: 1
+
         nb_iterations = 300
         for counter in range(nb_iterations):
 
             print(f"Iteration {counter+1}/{nb_iterations}")
             step = N
             for i, k in enumerate(self.knobs):
-                k.new_des_val = original_knob_vals[i] + step
+                if (flag_light and i==0) or (flag_detector and i == 1):
+                    k.new_des_val = original_knob_vals[i] + step
             for i, s in enumerate(self.sliders):
-                s.new_des_val = original_slider_vals[i] + step
+                if (flag_light and i==0) or (flag_detector and i == 1):
+                    s.new_des_val = original_slider_vals[i] + step
             pygame.time.wait(delay)
             if button.stop_flag:
                 break
 
             step = -N
             for i, k in enumerate(self.knobs):
-                k.new_des_val = original_knob_vals[i] + step
+                if (flag_light and i==0) or (flag_detector and i == 1):
+                    k.new_des_val = original_knob_vals[i] + step
             for i, s in enumerate(self.sliders):
-                s.new_des_val = original_slider_vals[i] + step
+                if (flag_light and i==0) or (flag_detector and i == 1):
+                    s.new_des_val = original_slider_vals[i] + step
             pygame.time.wait(delay)
             if button.stop_flag:
                 break
