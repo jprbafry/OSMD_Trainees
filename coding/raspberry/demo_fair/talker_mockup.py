@@ -2,14 +2,13 @@ import sys
 import os
 import time
 import argparse
-
 from mux_tx_rx import SerialManager
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Motor Mockup (B) Serial Script")
+    parser = argparse.ArgumentParser(description="Whatever demo talker mockup")
     parser.add_argument("--simulate", "-s", action="store_true", help="Run in simulation (file-based) mode instead of real serial")
-    parser.add_argument("--port", "-p",default="/dev/ttyACM0", help="Serial port to use when not simulating (e.g. /dev/ttyACM0)")
+    parser.add_argument("--port", "-p",type=str, default="/dev/ttyACM0", help="Serial port to use when not simulating (e.g. /dev/ttyACM0)")
     parser.add_argument("--baud", "-b",type=int, default=38400, help="Baud rate for the serial connection")
     parser.add_argument("--debug", "-d", action="store_true", help="Debug mode?")
     parser.add_argument("--name", "-n", choices=['A', 'B'], required=True, help="Name of this node (A or B) for simulation mode")
@@ -17,6 +16,7 @@ def parse_args():
 
 def main():
     args = parse_args()
+
 
     sm = SerialManager(simulate=args.simulate, port=args.port, baud=args.baud, name=args.name)
 

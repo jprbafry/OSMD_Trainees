@@ -75,7 +75,7 @@ class Bar:
 # ------------------------
 # Thread to update values
 # ------------------------
-def value_updater(file_path, temp_bar, intensity_bar):
+def value_updater(file_path, temp_bar):
     while True:
         if os.path.exists(file_path):
             with open(file_path, 'r') as f:
@@ -83,9 +83,7 @@ def value_updater(file_path, temp_bar, intensity_bar):
                 if len(lines) >= 2:
                     try:
                         temp_val = float(lines[0].strip())
-                        intensity_val = float(lines[1].strip())
                         temp_bar.set_value(temp_val)
-                        intensity_bar.set_value(intensity_val)
                     except ValueError:
                         pass  # ignore malformed lines
         time.sleep(0.1)  # update rate
