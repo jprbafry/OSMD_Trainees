@@ -6,11 +6,10 @@ import math
 import random
 
 
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from Bar import Bar
+#sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+#from Bar import Bar
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "demo_fair"))
 from mux_tx_rx import SerialManager
-
 
 #Helper parser function
 
@@ -35,29 +34,16 @@ def mock_temperature_sender(sm: SerialManager):
 
         if user_debug:
             print(f"[DEBUG] Sent temperature: {msg}")
-        counter += 1 #controls the sine wave frequency
-        time.sleep(5) #send every 5 seconds
+        counter += 1 #how fast the temperature changes
+        time.sleep(1) #send every 5 seconds
 
-
-
-        # #temperature between 0°C and 60°C
-        # temp += 0.1 * direction
-        # if temp >= 60: #reverse direction when max is reached
-        #     direction = -1
-        # elif temp >= 0: #reverse direction when min is reached
-        #     direction = 1    
-        # sm.send(f"TEMP:{temp:.2f}") 
-        # if user_debug:
-        #     print(f"[DEBUG] Sent temperature: {temp:.2f}°C")
-
-
-        # time.sleep(5.0)  #send every 5 seconds
 
 if __name__ == "__main__":
     args = parse_args()
 
-    #create a SerialManager in simulated mode using fake serial files    
-    sm = SerialManager(simulate=True, name=args.name, debug=False)
+    #create a SerialManager in simulated mode using fake serial files   
+    sm = SerialManager(simulate=False, name=args.name, debug=False)
+    #sm = SerialManager(port="/dev/ttyACM0", baud=19200 simulate=False, name=args.name, debug=False) # set simulate to False to use real serial port 
     user_debug = args.debug
 
     sm.start()   

@@ -3,10 +3,13 @@ import pygame
 import threading
 import time
 import os
+import sys
 
 # sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 # from GUI import Bar
-# from mockups import mockup_temperature
+#from mockups import mockup_temperature
+print(f"{os.path.dirname(__file__)}")
+sys.path.append(os.path.join(os.path.dirname(__file__),  "..",  "demo_fair"))
 from mux_tx_rx import SerialManager
 
 
