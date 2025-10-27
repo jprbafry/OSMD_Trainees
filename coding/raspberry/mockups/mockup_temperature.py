@@ -2,6 +2,9 @@ import time
 import argparse
 import sys
 import os
+import math
+import random
+
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from Bar import Bar
@@ -21,32 +24,41 @@ def parse_args():
 #Node A: mock temperature sender
 
 def mock_temperature_sender(sm: SerialManager):
+    #Send mock temperature data and send it via SerialManager
+    counter = 0.0
+  
 
-    """
-    Send mock temperature data and send it via SerialManager"""
-    temp = 30.0
-    direction = 1 #1 rising, -1 = falling
+    while sm.running.is_set(): #Block that sends mock temp data
+        value = 16 + 8 * math.sin(counter) #oscillates between 8°C and 24°C
+        msg = f"{value:.2f}"
+        sm.send(msg)
 
-    while sm.running.is_set():
-        #temperature between 0°C and 60°C
-        temp += 0.1 * direction
-        if temp >= 60: #reverse direction when max is reached
-            direction = -1
-        elif temp >= 0: #reverse direction when min is reached
-            direction = 1    
-        sm.send(f"TEMP:{temp:.2f}") 
-        if sm.debug:
-            print(f"[DEBUG] Sent temperature: {temp:.2f}°C")
+        if user_debug:
+            print(f"[DEBUG] Sent temperature: {msg}")
+        counter += 1 #controls the sine wave frequency
+        time.sleep(5) #send every 5 seconds
 
 
-        time.sleep(5.0)  #send every 5 seconds
+
+        # #temperature between 0°C and 60°C
+        # temp += 0.1 * direction
+        # if temp >= 60: #reverse direction when max is reached
+        #     direction = -1
+        # elif temp >= 0: #reverse direction when min is reached
+        #     direction = 1    
+        # sm.send(f"TEMP:{temp:.2f}") 
+        # if user_debug:
+        #     print(f"[DEBUG] Sent temperature: {temp:.2f}°C")
+
+
+        # time.sleep(5.0)  #send every 5 seconds
 
 if __name__ == "__main__":
     args = parse_args()
 
     #create a SerialManager in simulated mode using fake serial files    
-    sm = SerialManager(simulate=True, name=args.name, debug=args.debug)
-    sm.debug = args.debug 
+    sm = SerialManager(simulate=True, name=args.name, debug=False)
+    user_debug = args.debug
 
     sm.start()   
 
