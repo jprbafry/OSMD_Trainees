@@ -22,12 +22,14 @@ class FileBackedFakeSerial:
     def __init__(self, name):
         self.name = name.upper()
         base = os.path.dirname(__file__)
+        print(base)
         if self.name == 'A':
             self.write_file = os.path.join(base, 'a_to_b.txt')
             self.read_file  = os.path.join(base, 'b_to_a.txt')
         elif self.name == 'B':
             self.write_file = os.path.join(base, 'b_to_a.txt')
             self.read_file  = os.path.join(base, 'a_to_b.txt')
+            print(self.read_file)
         else:
             raise ValueError("Name must be 'A' or 'B'")
 
