@@ -4,8 +4,9 @@ import math
 import random
 import os
 import argparse
+
 from ctypes import Structure, c_uint16, c_bool, c_float
-from mux_tx_rx import SerialManager
+from communication.mux_tx_rx import SerialManager
 
 # Sensor Data (structure using C types)
 class SensorData(Structure):
@@ -82,16 +83,16 @@ def update_temperature(sd: SensorData, lock: threading.Lock, period_ms=200):
         time.sleep(period_ms / 1000)
 
 # Function to update IMU data
-def update_imu(sd: SensorData, lock: threading.Lock, period_ms=40):
+def update_imu(sd: SensorData, lock: threading.Lock, period_ms=20):
     start_time = time.time()
     phases = [0, math.pi/3, 2*math.pi/3, math.pi, 4*math.pi/3, 5*math.pi/3]
+    freqs = [random.uniform(1,5) for _ in range(6)]
     amplitude = 1.0
-    freq = 0.5
     while True:
         with lock:
             t = time.time() - start_time
             for i in range(6):
-                sd.imu[i] = amplitude * math.sin(2*math.pi*freq*t + phases[i])
+                sd.imu[i] = amplitude * math.sin(freqs[i]*t + phases[i])
         time.sleep(period_ms / 1000)
 
 

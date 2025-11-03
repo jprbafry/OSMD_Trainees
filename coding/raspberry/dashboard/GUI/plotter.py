@@ -17,12 +17,13 @@ class Plotter(widget.Widget):
         self.bg = widget.color_background
         self.data_buffer = deque(maxlen=width)
         self.auto = auto
+        self.lock = threading.Lock()
         if self.auto:
-            self.lock = threading.Lock()
             threading.Thread(target=self._generate_data, daemon=True).start()
 
     def update_cur_val(self, val):
-        self.cur_val = max(self.min_val, min(self.max_val, val))
+        self.cur_val = val
+        self.data_buffer.append(self.cur_val)
 
     def draw(self, surface):
         if not self.visible:
@@ -44,9 +45,11 @@ class Plotter(widget.Widget):
         t = 0
         phase = random.uniform(0, math.pi)
         freq = random.uniform(1,5)
+        amp = 0.8
+        noise = (1-amp)*random.uniform(0, 1)
         while self.auto:
             with self.lock:
-                self.cur_val = self.max_val*0.8*math.sin(freq*t+phase) + self.max_val*0.2*random.uniform(0, 1)
+                self.cur_val = self.max_val*amp*math.sin(freq*t+phase) + self.max_val*noise
                 self.data_buffer.append(self.cur_val)
             t += 0.05
             time.sleep(0.01)
