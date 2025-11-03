@@ -41,9 +41,13 @@ def update_motor_encoders(sd: SensorData, lock: threading.Lock, step=1, period_m
     while True:
         with lock:
             for i in range(4):
+                if i < 2:
+                    lim = 511
+                else:
+                    lim = 255
                 sd.motor_encoders[i] += direction[i]*step
-                if sd.motor_encoders[i] >= 511:
-                    sd.motor_encoders[i] = 511
+                if sd.motor_encoders[i] >= lim:
+                    sd.motor_encoders[i] = lim
                     direction[i] = -1
                 elif sd.motor_encoders[i] <= 0:
                     sd.motor_encoders[i] = 0

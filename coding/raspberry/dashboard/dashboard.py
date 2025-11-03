@@ -36,7 +36,7 @@ def string_to_sensor_data(msg: str) -> SensorData:
 
 # Argument Parsing
 def parse_args():
-    parser = argparse.ArgumentParser(description="Motor Mockup (B) Serial Script")
+    parser = argparse.ArgumentParser(description="Dashboard")
     parser.add_argument("--simulate", "-s", action="store_true", help="Run in simulation (file-based) mode instead of real serial")
     parser.add_argument("--port", "-p", default="/dev/ttyACM0", help="Serial port to use when not simulating (e.g. /dev/ttyACM0)")
     parser.add_argument("--baud", "-b", type=int, default=19200, help="Baud rate for the serial connection")
