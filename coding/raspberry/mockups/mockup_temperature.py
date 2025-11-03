@@ -8,7 +8,7 @@ import random
 
 #sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 #from Bar import Bar
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "demo_fair"))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from mux_tx_rx import SerialManager
 
 #Helper parser function
@@ -36,7 +36,6 @@ def mock_temperature_sender(sm: SerialManager):
             print(f"[DEBUG] Sent temperature: {msg}")
         counter += 1 #how fast the temperature changes
         time.sleep(1) #send every 5 seconds
-
 
 if __name__ == "__main__":
     args = parse_args()
