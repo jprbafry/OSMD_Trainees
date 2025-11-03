@@ -56,5 +56,6 @@ To run the demos:
 python -m GUI.knob
 python -m GUI.bar
 python -m GUI.plotter
+python dashboard.py -a
 ...
 ```

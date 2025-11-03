@@ -5,35 +5,8 @@ import random
 import os
 import argparse
 
-from ctypes import Structure, c_uint16, c_bool, c_float
 from communication.mux_tx_rx import SerialManager
-
-# Sensor Data (structure using C types)
-class SensorData(Structure):
-    _fields_ = [
-        ("motor_encoders", c_uint16 * 4),
-        ("home_switches", c_bool * 4),
-        ("potentiometers", c_uint16 * 2),
-        ("ref_diode", c_uint16),
-        ("temp_sensor", c_float),
-        ("imu", c_float * 6)
-    ]
-
-# Function to put data into a single string
-def sensor_data_to_string(sensor: SensorData) -> str:
-    values = []
-    values.extend(sensor.motor_encoders[:])
-    values.extend(int(b) for b in sensor.home_switches[:])
-    values.extend(sensor.potentiometers[:])
-    values.append(sensor.ref_diode)
-    values.append(f"{sensor.temp_sensor:.3f}")
-    values.extend(f"{v:.3f}" for v in sensor.imu[:])
-    return ",".join(str(v) for v in values)
-
-
-
-
-
+from communication.protocol import SensorData, sensor_data_to_string
 
 # Function to update motor encoders data
 def update_motor_encoders(sd: SensorData, lock: threading.Lock, step=1, period_ms=20):
@@ -154,7 +127,7 @@ if __name__ == "__main__":
         t.start()
 
     # Send updates every 100ms
-    update_period = 100  # ms
+    update_period = 40  # ms
     try:
         while True:
             with lock:
