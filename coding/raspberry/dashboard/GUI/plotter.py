@@ -1,7 +1,7 @@
 import pygame
 import math
 import time
-import math
+import random
 import threading
 from collections import deque
 from GUI import widget
@@ -42,9 +42,11 @@ class Plotter(widget.Widget):
 
     def _generate_data(self):
         t = 0
+        phase = random.uniform(0, math.pi)
+        freq = random.uniform(1,5)
         while self.auto:
             with self.lock:
-                self.cur_val = self.max_val*math.sin(t)
+                self.cur_val = self.max_val*0.8*math.sin(freq*t+phase) + self.max_val*0.2*random.uniform(0, 1)
                 self.data_buffer.append(self.cur_val)
             t += 0.05
             time.sleep(0.01)

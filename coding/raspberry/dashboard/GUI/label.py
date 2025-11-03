@@ -7,12 +7,16 @@ from GUI import widget
 # === LABEL CLASS ===
 # ==========================
 class Label(widget.Widget):
-    def __init__(self, text, x, y, font, color=widget.color_text, center=True):
+    def __init__(self, text, x, y, font, color=widget.color_text, center=True, auto=True):
         super().__init__(x, y)
         self.text = text
         self.font = font
+        self.auto = auto
         self.color = color
         self.center = center
+
+    def update_cur_val(self, event=None):
+        pass
 
     def draw(self, surface):
         if not self.visible:
@@ -24,7 +28,7 @@ class Label(widget.Widget):
             text_rect = text_surface.get_rect(topleft=(self.x, self.y))
         surface.blit(text_surface, text_rect)
 
-    def update(self, event=None):
+    def _generate_data(self):
         pass
 
     
@@ -33,11 +37,10 @@ class Label(widget.Widget):
 # ==========================
 if __name__ == "__main__":
     from GUI import demo
-    from GUI.bar import Bar
 
 
     def label_factory(font):
-        label = Label("Hello Widget!", 150, 50, font)
+        label = Label("Hello Widget!", 150, 50, font, auto=True)
         return [label]
 
     demo.run_widget_demo(label_factory)

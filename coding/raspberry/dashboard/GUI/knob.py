@@ -2,6 +2,7 @@ import pygame
 import threading
 import math
 import time
+import random
 from GUI import widget
 
 
@@ -33,9 +34,11 @@ class Knob(widget.Widget):
 
     def _generate_data(self):
         t = 0
+        freq = random.uniform(1,3)
+        amp = random.uniform(0.1,0.9)
         while self.auto:
             with self.lock:
-                self.cur_val = self.max_val*0.4 + 0.1*self.max_val*math.sin(t)
+                self.cur_val = self.max_val*amp + (1-amp)*self.max_val*math.sin(freq*t)
             t += 0.01
             time.sleep(0.01)
 

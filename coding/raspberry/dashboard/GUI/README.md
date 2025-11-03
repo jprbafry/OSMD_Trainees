@@ -14,7 +14,6 @@ GUI/
 ├── logbox.py # Log box widget class
 ├── plotter.py # Plotter widget class
 ├── slider.py # Slider widget class
-├── ui.py # UI helper functions
 ├── widget.py # Base Widget class and global colors
 ├── demo.py # run_widget_demo() for running widget demos
 └── README.md

@@ -1,6 +1,7 @@
 import pygame
 import threading
 import math
+import random
 import time
 from GUI import widget
 
@@ -57,15 +58,17 @@ class Bar(widget.Widget):
 
     def _generate_data(self):
         t = 0
+        phase = random.uniform(0, math.pi)
+        freq = random.uniform(0.1,0.5)
+        amp = random.uniform(0.5,0.9)
         while self.auto:
             with self.lock:
-                self.cur_val = self.max_val*0.8 + 0.2*self.max_val*math.sin(t)
+                self.cur_val = self.max_val*amp + (1-amp)*self.max_val*math.sin(freq*t+phase)
             t += 0.10
             time.sleep(0.01)
 
 if __name__ == "__main__":
     from GUI import demo
-
 
     def bar_factory(font):
         
