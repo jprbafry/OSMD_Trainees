@@ -13,7 +13,7 @@ from dash_pygame.communication import protocol
 #sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 #from Bar import Bar
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from mux_tx_rx import SerialManager
+from dash_pygame.communication.mux_tx_rx import SerialManager
 
 #Helper parser function
 
@@ -33,7 +33,19 @@ def mock_temperature_sender(sm: SerialManager):
 
     while sm.running.is_set(): #Block that sends mock temp data
         value = 16 + 8 * math.sin(counter) #oscillates between 8°C and 24°C
-        msg = f"{value:.2f}"
+        #msg = f"{value:.2f}"
+        
+        sd = protocol.SensorData()
+        sd.temp_sensor = float(f"{value:.2f}")
+        print(f"Generated temperature: {sd.temp_sensor:.2f} °C")
+        # Generate zero mock data for other fields
+        sd.motor_encoders[:] = [0, 0, 0, 0]
+        sd.home_switches[:] = [False, False, False, False]
+        sd.potentiometers[:] = [0, 0]
+        sd.ref_diode = 0
+        sd.imu[:] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+        msg = protocol.sensor_data_to_string(sd)
         sm.send(msg)
 
         if user_debug:

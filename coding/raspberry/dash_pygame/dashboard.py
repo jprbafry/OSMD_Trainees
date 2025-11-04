@@ -22,6 +22,7 @@ if __name__ == "__main__":
     sm = SerialManager(simulate=args.simulate, name='B', port=args.port, baud=args.baud, debug=args.debug)
 
     def on_receive(msg):
+        print(f"Received: {msg}")
         sd = string_to_sensor_data(msg)
 
         # # Update knobs
