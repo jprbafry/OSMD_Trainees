@@ -1,6 +1,6 @@
 # Raspberry
 
-Code running on raspberry for diverse GUI components and extra tools
+Code running on raspberry for a dashboard and other GUI components (with  extra tools)
 
 To run the demos:
 ```bash
