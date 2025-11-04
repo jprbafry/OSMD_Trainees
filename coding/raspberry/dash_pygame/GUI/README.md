@@ -17,8 +17,6 @@ GUI/
 ├── slider.py # Slider widget class
 ├── widget.py # Base Widget class and global colors
 ├── demo.py # run_widget_demo() for running widget demos
-└── dashboard.py 
-└── mockup_sensors.py 
 ```
 
 ---
@@ -58,6 +56,5 @@ To run the demos:
 python -m GUI.knob
 python -m GUI.bar
 python -m GUI.plotter
-python dashboard.py -s -a
 ...
 ```

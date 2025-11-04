@@ -25,7 +25,6 @@
 ## How to Run
 
 ```
-python motor_mockup.py -s
-python ctrl_cli_interface.py -s
-python ctrl_gui_interface.py -s
+python -m demo_fair.motor_mockup.py -s
+python -m demo_fair.ctrl_gui_interface
 ```
