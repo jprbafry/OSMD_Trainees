@@ -1,11 +1,11 @@
 import pygame
 from GUI import widget
-from GUI import plotter
+# from GUI import plotter
 from GUI import bar
-from GUI import knob
-from GUI import slider
-from GUI import label
-from GUI import logbox
+# from GUI import knob
+# from GUI import slider
+# from GUI import label
+# from GUI import logbox
 
 class Panel:
     def __init__(self, auto=False):
@@ -18,15 +18,15 @@ class Panel:
         self.auto = auto
 
 
-        # Plotters
-        self.plotters = [
-            plotter.Plotter(50, 250, 200, 100, 1, -1, (255,0,0), self.font, auto=self.auto),
-            plotter.Plotter(50, 350, 200, 100, 1, -1, (0,255,0), self.font, auto=self.auto),
-            plotter.Plotter(50, 450, 200, 100, 1, -1, (0,0,255), self.font, auto=self.auto),
-            plotter.Plotter(300, 250, 200, 100, 1, -1, (255,255,0), self.font, auto=self.auto),
-            plotter.Plotter(300, 350, 200, 100, 1, -1, (0,255,255), self.font, auto=self.auto),
-            plotter.Plotter(300, 450, 200, 100, 1, -1, (255,0,255), self.font, auto=self.auto)
-        ]
+        # # Plotters
+        # self.plotters = [
+        #     plotter.Plotter(50, 250, 200, 100, 1, -1, (255,0,0), self.font, auto=self.auto),
+        #     plotter.Plotter(50, 350, 200, 100, 1, -1, (0,255,0), self.font, auto=self.auto),
+        #     plotter.Plotter(50, 450, 200, 100, 1, -1, (0,0,255), self.font, auto=self.auto),
+        #     plotter.Plotter(300, 250, 200, 100, 1, -1, (255,255,0), self.font, auto=self.auto),
+        #     plotter.Plotter(300, 350, 200, 100, 1, -1, (0,255,255), self.font, auto=self.auto),
+        #     plotter.Plotter(300, 450, 200, 100, 1, -1, (255,0,255), self.font, auto=self.auto)
+        # ]
 
         # Bars
         c_b1 = [(0, 0, 255), (255,255,255), (255, 0, 0)]
@@ -37,7 +37,7 @@ class Panel:
         ]
 
         # All widgets together for easy drawing
-        self.widgets = self.plotters + self.bars
+        self.widgets = self.bars
 
     def draw(self):
         """Draw all widgets"""

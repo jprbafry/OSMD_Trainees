@@ -6,6 +6,10 @@ import math
 import random
 
 
+# Add the project root (raspberry/) to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from dash_pygame.communication import protocol 
+ 
 #sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 #from Bar import Bar
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
