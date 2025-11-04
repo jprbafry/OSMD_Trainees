@@ -221,7 +221,7 @@ class Panel:
         self.buttons.append(Button(btn_x, btn_y, btn_size, self.font, self.pulse_knobs_sliders))
 
 
-    def pulse_knobs_sliders(self, button, N=60, delay=3000):
+    def pulse_knobs_sliders(self, button, N=20, delay=3000):
         """Pulses knobs and sliders until button.stop_flag becomes True."""
         original_knob_vals = [k.new_des_val for k in self.knobs]
         original_slider_vals = [s.new_des_val for s in self.sliders]

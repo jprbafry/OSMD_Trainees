@@ -242,12 +242,12 @@ void receiveTask() {
 }
 
 void moveM1Task () {
-    //move_to_absolute(LIGHT_RAD, des_light_pol, LIGHT_RAD_STEPS_PER_DEG);
-    delayMicroseconds(STEP_DELAY_US);
+    move_to_absolute(LIGHT_RAD, des_light_pol, LIGHT_RAD_STEPS_PER_DEG);
+    //delayMicroseconds(STEP_DELAY_US);
 }
 void moveM2Task () {
-    //move_to_absolute(DETECTOR_RAD, des_detector_pol, DET_RAD_STEPS_PER_DEG);
-    delayMicroseconds(STEP_DELAY_US);
+    move_to_absolute(DETECTOR_RAD, des_detector_pol, DET_RAD_STEPS_PER_DEG);
+    //delayMicroseconds(STEP_DELAY_US);
 }
 void moveM3Task () {
     move_to_absolute(DETECTOR_AZ, des_detector_azi, DET_AZ_STEPS_PER_DEG);

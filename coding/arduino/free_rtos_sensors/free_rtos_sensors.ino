@@ -1,8 +1,7 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include <MPU6050.h>
-#include <Arduino_FreeRTOS.h>
 
+#include <Arduino_FreeRTOS.h>
 // -------------------------
 // Configuration
 // -------------------------
@@ -44,7 +43,7 @@ const int PIN_LED_2 = 27;
 const int PIN_LED_3 = 28;
 const int PIN_LED_4 = 29;
 
-MPU6050 imu;
+
 
 // -------------------------
 // Task Intervals (ms)
@@ -101,7 +100,7 @@ void TaskLED(void *pvParameters) {
   }
 }
 
-void TaskIMU(void *pvParameters) {
+/* void TaskIMU(void *pvParameters) {
   for (;;) {
     sensors.accelX = imu.getAccelerationX();
     sensors.accelY = imu.getAccelerationY();
@@ -112,7 +111,7 @@ void TaskIMU(void *pvParameters) {
     sensors.tempIMU = imu.getTemperature();
     vTaskDelay(PER_IMU / portTICK_PERIOD_MS);
   }
-}
+} */
 
 void TaskPrint(void *pvParameters) {
   for (;;) {
@@ -129,7 +128,7 @@ void TaskPrint(void *pvParameters) {
     Serial.print(F(" Detector_azi: ")); Serial.print(sensors.home_detector_azi);
     Serial.println();
 
-    Serial.print(F("IMU ... "));
+/*     Serial.print(F("IMU ... "));
     Serial.print(F(" Ax: ")); Serial.print(sensors.accelX);
     Serial.print(F(" Ay: ")); Serial.print(sensors.accelY);
     Serial.print(F(" Az: ")); Serial.print(sensors.accelZ);
@@ -137,7 +136,7 @@ void TaskPrint(void *pvParameters) {
     Serial.print(F(" Gy: ")); Serial.print(sensors.gyroY);
     Serial.print(F(" Gz: ")); Serial.println(sensors.gyroZ);
     Serial.print(F(" T: ")); Serial.println(sensors.tempIMU);
-    Serial.println();
+    Serial.println(); */
 
     vTaskDelay(PER_PRINTER / portTICK_PERIOD_MS);
   }
@@ -149,13 +148,6 @@ void TaskPrint(void *pvParameters) {
 void setup() {
   Serial.begin(BAUD_RATE);
   Wire.begin();
-  imu.initialize();
-
-  if (!imu.testConnection()) {
-    Serial.println(F("MPU6050 connection failed!"));
-  } else {
-    Serial.println(F("MPU6050 connected successfully."));
-  }
 
   pinMode(PIN_HOME_SWT_LIGHT_POL, INPUT_PULLUP);
   pinMode(PIN_HOME_SWT_LIGHT_AZI, INPUT_PULLUP);
@@ -167,10 +159,10 @@ void setup() {
   // --- Create Tasks ---
   xTaskCreate(TaskPot, "Pots", 128, NULL, 1, NULL);
   xTaskCreate(TaskRefDiode, "Ref", 128, NULL, 1, NULL);
-  xTaskCreate(TaskPolarSwitches, "Polar", 128, NULL, 1, NULL);
+  xTaskCreate(TaskPolarSwitches, "Switches", 128, NULL, 1, NULL);
   xTaskCreate(TaskAzimuthalSwitches, "Azi", 128, NULL, 1, NULL);
   xTaskCreate(TaskLED, "LED", 128, NULL, 1, NULL);
-  xTaskCreate(TaskIMU, "IMU", 256, NULL, 1, NULL);
+  //xTaskCreate(TaskIMU, "IMU", 256, NULL, 1, NULL);
   xTaskCreate(TaskPrint, "Print", 256, NULL, 1, NULL);
 
 }
