@@ -132,7 +132,6 @@ if __name__ == "__main__":
         while True:
             with lock:
                 msg = sensor_data_to_string(sd)
-            print(msg)
             sm.send(msg)
             time.sleep(update_period / 1000)
     except KeyboardInterrupt:

@@ -28,6 +28,10 @@ if __name__ == "__main__":
         for i, knob in enumerate(panel.knobs):
             knob.update_cur_val(sd.motor_encoders[i]*360/512)
 
+        # Update sliders
+        for i, slider in enumerate(panel.sliders):
+            slider.update_cur_val(sd.motor_encoders[i+2]*360/512)  # slider maps to motor_encoders[2,3]
+
         # Update bars
         panel.bars[0].update_cur_val(sd.temp_sensor)
         panel.bars[1].update_cur_val(sd.ref_diode)

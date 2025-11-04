@@ -40,6 +40,8 @@ class Plotter(widget.Widget):
                 y = self.y + self.height // 2 - int(val * scale_y)
                 pygame.draw.line(surface, self.color, (prev_x, prev_y), (x, y))
                 prev_x, prev_y = x, y
+        border_color = widget.color_line  # light gray border
+        pygame.draw.rect(surface, border_color, (self.x, self.y, self.width, self.height), 2)
 
     def _generate_data(self):
         t = 0

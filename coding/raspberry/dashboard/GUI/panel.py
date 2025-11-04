@@ -15,7 +15,7 @@ class Panel:
         self.font = pygame.font.SysFont(None, 24)
         self.auto = auto
 
-        # --- Widgets setup ---
+        # Widgets setup
 
         # Knobs
         self.knobs = [
@@ -23,14 +23,20 @@ class Panel:
             knob.Knob(400, 110, 60, 0, 360, self.font, auto=self.auto)
         ]
 
+        # Sliders
+        self.sliders = [
+            slider.Slider( 90, 210, 120, 0, 0, 180, self.font, auto=self.auto),
+            slider.Slider(340, 210, 120, 0, 0, 180, self.font, auto=self.auto)
+        ]
+
         # Plotters
         self.plotters = [
-            plotter.Plotter(50, 250, 200, 100, 1, -1, (255,0,0), self.font, auto=self.auto),
-            plotter.Plotter(50, 350, 200, 100, 1, -1, (0,255,0), self.font, auto=self.auto),
-            plotter.Plotter(50, 450, 200, 100, 1, -1, (0,0,255), self.font, auto=self.auto),
-            plotter.Plotter(300, 250, 200, 100, 1, -1, (255,255,0), self.font, auto=self.auto),
-            plotter.Plotter(300, 350, 200, 100, 1, -1, (0,255,255), self.font, auto=self.auto),
-            plotter.Plotter(300, 450, 200, 100, 1, -1, (255,0,255), self.font, auto=self.auto)
+            plotter.Plotter( 50, 260, 200, 90, 1, -1, (255,0,0), self.font, auto=self.auto),
+            plotter.Plotter( 50, 360, 200, 90, 1, -1, (0,255,0), self.font, auto=self.auto),
+            plotter.Plotter( 50, 460, 200, 90, 1, -1, (0,0,255), self.font, auto=self.auto),
+            plotter.Plotter(300, 260, 200, 90, 1, -1, (255,255,0), self.font, auto=self.auto),
+            plotter.Plotter(300, 360, 200, 90, 1, -1, (0,255,255), self.font, auto=self.auto),
+            plotter.Plotter(300, 460, 200, 90, 1, -1, (255,0,255), self.font, auto=self.auto)
         ]
 
         # Bars
@@ -42,7 +48,7 @@ class Panel:
         ]
 
         # All widgets together for easy drawing
-        self.widgets = self.knobs + self.plotters + self.bars
+        self.widgets = self.knobs + self.sliders + self.plotters + self.bars
 
     def draw(self):
         """Draw all widgets"""
