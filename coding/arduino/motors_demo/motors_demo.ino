@@ -18,14 +18,14 @@
 
 // === Constants ===
 // TODO: Change if necessary (how many steps the motor does per degree depends on the setup)
-const float DET_AZ_STEPS_PER_DEG = 24.0;
-const float DET_RAD_STEPS_PER_DEG = 20.0;
+const float DET_AZ_STEPS_PER_DEG = 4.0;
+const float DET_RAD_STEPS_PER_DEG = 18.0;
 const float LIGHT_AZ_STEPS_PER_DEG = 24.0;
-const float LIGHT_RAD_STEPS_PER_DEG = 20.0;
+const float LIGHT_RAD_STEPS_PER_DEG = 18.0;
 
 
 const unsigned int NUM_MOTORS = 4; // How many motors do we have
-const unsigned int STEP_DELAY_US = 500;  
+const unsigned int STEP_DELAY_US = 1000;  
 
 
 
