@@ -1,9 +1,11 @@
 import pygame
-from GUI import knob
+from GUI import widget
 from GUI import plotter
 from GUI import bar
+from GUI import knob
 from GUI import slider
-from GUI import widget
+from GUI import label
+from GUI import logbox
 
 class Panel:
     def __init__(self, auto=False):
@@ -15,13 +17,6 @@ class Panel:
         self.font = pygame.font.SysFont(None, 24)
         self.auto = auto
 
-        # --- Widgets setup ---
-
-        # Knobs
-        self.knobs = [
-            knob.Knob(150, 110, 60, 0, 360, self.font, auto=self.auto),
-            knob.Knob(400, 110, 60, 0, 360, self.font, auto=self.auto)
-        ]
 
         # Plotters
         self.plotters = [
@@ -42,7 +37,7 @@ class Panel:
         ]
 
         # All widgets together for easy drawing
-        self.widgets = self.knobs + self.plotters + self.bars
+        self.widgets = self.plotters + self.bars
 
     def draw(self):
         """Draw all widgets"""
