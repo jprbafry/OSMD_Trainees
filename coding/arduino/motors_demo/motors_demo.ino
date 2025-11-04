@@ -67,7 +67,7 @@ ThreadController controller = ThreadController();
 #define RECEPTION_PERIOD 5
 #define TRANSMISSION_PERIOD 40
 
-// --- Threads ---
+// Threads
 Thread threadReceive = Thread();
 Thread threadMoveM1  = Thread();
 Thread threadMoveM2  = Thread();
@@ -75,7 +75,7 @@ Thread threadMoveM3  = Thread();
 Thread threadMoveM4  = Thread();
 Thread threadSend    = Thread();
 
-// --- Shared variables ---
+// Shared variables
 float des_light_azi = 180.0, des_light_pol = 90.0;
 float des_detector_azi = 180.0, des_detector_pol = 90.0;
 
@@ -127,7 +127,7 @@ void setup() {
 
   Serial.println("Motor controller ready.");
 
-  // --- Setup threads ---
+  // Setup threads
   threadReceive.onRun(receiveTask);
   threadReceive.setInterval(RECEPTION_PERIOD);
 
@@ -190,7 +190,7 @@ void move_to_absolute(MotorAxis axis, float target_angle, float max_nb_steps) {
 }
 
 
-// --- Helper to parse 4 comma-separated floats ---
+// Helper to parse 4 comma-separated floats
 void processInput(String msg) {
   
     // Print the raw input message
@@ -223,7 +223,7 @@ void processInput(String msg) {
 
 
 
-// --- Thread functions ---
+// Thread functions
 
 // Read from serial and parse desired values
 void receiveTask() {
