@@ -1,7 +1,7 @@
 import threading
 import time
 import argparse
-from mux_tx_rx import SerialManager
+from communication.mux_tx_rx import SerialManager
 
 
 # Update desired values based on data received

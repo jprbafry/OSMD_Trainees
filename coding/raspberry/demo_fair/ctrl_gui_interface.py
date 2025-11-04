@@ -1,5 +1,5 @@
-from ui import Panel
-from mux_tx_rx import SerialManager
+from demo_fair.GUI import ui
+from communication.mux_tx_rx import SerialManager
 import threading
 import time
 import argparse
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     # Create the control panel
-    ctrl_panel = Panel(width=args.width, height=args.height, fps=60, routine=args.routine)
+    ctrl_panel = ui.Panel(width=args.width, height=args.height, fps=60, routine=args.routine)
 
     # Create SerialManager (name='A')
     sm = SerialManager(simulate=args.simulate, name='A', port=args.port, baud=args.baud, debug=args.debug)

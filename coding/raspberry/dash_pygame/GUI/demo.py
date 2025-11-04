@@ -1,5 +1,5 @@
 import pygame
-from GUI import widget
+from dash_pygame.GUI import widget
 
 
 def run_widget_demo(widget_factory, window_size=(300, 300), title="Widget System Demo"):

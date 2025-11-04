@@ -1,6 +1,6 @@
 
 import argparse
-from GUI.panel import Panel
+from dash_pygame.GUI.panel import Panel
 
 from communication.mux_tx_rx import SerialManager
 from communication.protocol import string_to_sensor_data
@@ -23,10 +23,6 @@ if __name__ == "__main__":
 
     def on_receive(msg):
         sd = string_to_sensor_data(msg)
-
-        # Update knobs
-        for i, knob in enumerate(panel.knobs):
-            knob.update_cur_val(sd.motor_encoders[i]*360/512)
 
         # Update bars
         panel.bars[0].update_cur_val(sd.temp_sensor)

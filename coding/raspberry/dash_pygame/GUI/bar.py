@@ -3,7 +3,7 @@ import threading
 import math
 import random
 import time
-from GUI import widget
+from dash_pygame.GUI import widget
 
 def get_color(ratio, colors):
     if len(colors) == 2:

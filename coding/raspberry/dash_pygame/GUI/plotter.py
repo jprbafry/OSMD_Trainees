@@ -4,7 +4,7 @@ import time
 import random
 import threading
 from collections import deque
-from GUI import widget
+from dash_pygame.GUI import widget
 
 
 # Plotter Class

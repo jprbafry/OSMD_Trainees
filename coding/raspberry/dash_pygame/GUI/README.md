@@ -12,11 +12,13 @@ GUI/
 ├── knob.py # Knob widget class
 ├── label.py # Label widget class
 ├── logbox.py # Log box widget class
+├── panel.py # Panel class
 ├── plotter.py # Plotter widget class
 ├── slider.py # Slider widget class
 ├── widget.py # Base Widget class and global colors
 ├── demo.py # run_widget_demo() for running widget demos
-└── README.md
+└── dashboard.py 
+└── mockup_sensors.py 
 ```
 
 ---
@@ -56,6 +58,6 @@ To run the demos:
 python -m GUI.knob
 python -m GUI.bar
 python -m GUI.plotter
-python dashboard.py -a
+python dashboard.py -s -a
 ...
 ```

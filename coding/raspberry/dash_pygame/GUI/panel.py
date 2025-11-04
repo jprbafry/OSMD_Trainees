@@ -1,11 +1,11 @@
 import pygame
-from GUI import widget
-from GUI import plotter
-from GUI import bar
-from GUI import knob
-from GUI import slider
-from GUI import label
-from GUI import logbox
+from dash_pygame.GUI import widget
+from dash_pygame.GUI import plotter
+from dash_pygame.GUI import bar
+from dash_pygame.GUI import knob
+from dash_pygame.GUI import slider
+from dash_pygame.GUI import label
+from dash_pygame.GUI import logbox
 
 class Panel:
     def __init__(self, auto=False):

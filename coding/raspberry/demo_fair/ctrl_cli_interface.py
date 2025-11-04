@@ -1,4 +1,4 @@
-from mux_tx_rx import SerialManager
+from communication.mux_tx_rx import SerialManager
 
 def main():
     sm = SerialManager(simulate=True, name='A', debug=False)
