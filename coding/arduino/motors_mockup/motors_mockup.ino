@@ -5,12 +5,12 @@
 // Thread controller manages all threads
 ThreadController controller = ThreadController();
 
-// --- Threads ---
+// Threads
 Thread threadReceive = Thread();
 Thread threadUpdate  = Thread();
 Thread threadSend    = Thread();
 
-// --- Shared variables ---
+// Shared variables
 float des_light_azi = 0.0, des_light_pol = 0.0;
 float des_detector_azi = 0.0, des_detector_pol = 0.0;
 
@@ -33,7 +33,7 @@ void setup() {
   Serial.begin(115200);
   while (!Serial) { ; }  // Wait for Serial ready
 
-  // --- Setup threads ---
+  // Setup threads
   threadReceive.onRun(receiveTask);
   threadReceive.setInterval(5);   // check serial every 5 ms
 
@@ -53,7 +53,7 @@ void loop() {
   controller.run();  // this runs all active threads when ready
 }
 
-// --- Thread functions ---
+// Thread functions
 
 // 1️⃣ Read from serial and parse desired values
 void receiveTask() {
@@ -99,7 +99,7 @@ void sendTask() {
   Serial.println(cur_detector_pol, 1);
 }
 
-// --- Helper to parse 4 comma-separated floats ---
+// Helper to parse 4 comma-separated floats
 void processInput(String msg) {
   float vals[4];
   int lastIndex = 0;
