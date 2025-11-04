@@ -1,8 +1,7 @@
 #include <Arduino.h>
 #include <Wire.h>
+
 #include <Arduino_FreeRTOS.h>
-
-
 // -------------------------
 // Configuration
 // -------------------------
@@ -43,6 +42,7 @@ const int PIN_LED_1 = 26;
 const int PIN_LED_2 = 27;
 const int PIN_LED_3 = 28;
 const int PIN_LED_4 = 29;
+
 
 
 // -------------------------
