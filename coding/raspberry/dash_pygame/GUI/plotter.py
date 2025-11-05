@@ -56,7 +56,7 @@ class Plotter(widget.Widget):
 
         
 if __name__ == "__main__":
-    from GUI import demo
+    from dash_pygame.GUI import demo
 
     def plotter_factory(font):
         cx = 0

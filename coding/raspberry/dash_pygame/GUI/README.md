@@ -43,7 +43,7 @@ Each widget file includes a **demo section** that can be run directly.
 
 ```python
 if __name__ == "__main__":
-    from GUI import demo
+    from dash_pygame.GUI import demo
 
     ...
 

@@ -68,7 +68,7 @@ class Bar(widget.Widget):
             time.sleep(0.01)
 
 if __name__ == "__main__":
-    from GUI import demo
+    from dash_pygame.GUI import demo
 
     def bar_factory(font):
         
