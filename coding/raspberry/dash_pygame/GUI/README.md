@@ -53,8 +53,8 @@ if __name__ == "__main__":
 
 To run the demos:
 ```bash
-python -m GUI.knob
-python -m GUI.bar
-python -m GUI.plotter
+python -m dash_pygame.GUI.knob
+python -m dash_pygame.GUI.bar
+python -m dash_pygame.GUI.plotter
 ...
 ```
