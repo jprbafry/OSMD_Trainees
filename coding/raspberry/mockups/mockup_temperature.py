@@ -49,7 +49,7 @@ def mock_temperature_sender(sm: SerialManager):
         sm.send(msg)
 
         if user_debug:
-            print(f"[DEBUG] Sent temperature: {msg}")
+            print(f"Sent temperature: {msg}")
         counter += 1 #how fast the temperature changes
         time.sleep(1) #send every 5 seconds
 
