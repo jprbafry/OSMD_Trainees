@@ -1,7 +1,10 @@
 
 import argparse
-from dash_pygame.GUI.panel import Panel
+import sys
+import os
+from GUI.panel import Panel
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from communication.mux_tx_rx import SerialManager
 from communication.protocol import string_to_sensor_data
 
@@ -19,7 +22,7 @@ if __name__ == "__main__":
     args = parse_args()
     panel = Panel(args.autodata)
 
-    sm = SerialManager(simulate=args.simulate, name='A', port=args.port, baud=args.baud, debug=args.debug)
+    sm = SerialManager(simulate=args.simulate, name='B', port=args.port, baud=args.baud, debug=args.debug)
 
     def on_receive(msg):
         sd = string_to_sensor_data(msg)
@@ -28,9 +31,9 @@ if __name__ == "__main__":
         panel.bars[0].update_cur_val(sd.temp_sensor)
         panel.bars[1].update_cur_val(sd.ref_diode)
 
-        # Update plotters
-        for i, plotter in enumerate(panel.plotters):
-            plotter.update_cur_val(sd.imu[i])
+        # # Update plotters
+        # for i, plotter in enumerate(panel.plotters):
+        #     plotter.update_cur_val(sd.imu[i])
 
     sm.on_receive = on_receive
     sm.start()

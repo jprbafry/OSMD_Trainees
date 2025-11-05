@@ -1,4 +1,8 @@
 import pygame
+import os
+import sys
+
+#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')))
 from dash_pygame.GUI import widget
 from dash_pygame.GUI import plotter
 from dash_pygame.GUI import bar

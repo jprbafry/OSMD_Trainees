@@ -8,12 +8,12 @@ import random
 
 # Add the project root (raspberry/) to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from dash_pygame.communication import protocol 
+from communication import protocol 
  
 #sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 #from Bar import Bar
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from dash_pygame.communication.mux_tx_rx import SerialManager
+from communication.mux_tx_rx import SerialManager
 
 #Helper parser function
 
@@ -37,7 +37,7 @@ def mock_temperature_sender(sm: SerialManager):
         
         sd = protocol.SensorData()
         sd.temp_sensor = float(f"{value:.2f}")
-        print(f"Generated temperature: {sd.temp_sensor:.2f} °C")
+        print(f"Sent temperature: {sd.temp_sensor:.2f} °C")
         # Generate zero mock data for other fields
         sd.motor_encoders[:] = [0, 0, 0, 0]
         sd.home_switches[:] = [False, False, False, False]
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     args = parse_args()
 
     #create a SerialManager in simulated mode using fake serial files   
-    sm = SerialManager(simulate=False, name=args.name, debug=False)
+    sm = SerialManager(simulate=True, name=args.name, debug=False)
     #sm = SerialManager(port="/dev/ttyACM0", baud=19200 simulate=False, name=args.name, debug=False) # set simulate to False to use real serial port 
     user_debug = args.debug
 
