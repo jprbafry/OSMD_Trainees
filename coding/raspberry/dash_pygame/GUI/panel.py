@@ -1,8 +1,5 @@
 import pygame
-import os
-import sys
 
-#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')))
 from dash_pygame.GUI import widget
 from dash_pygame.GUI import plotter
 from dash_pygame.GUI import bar
@@ -24,12 +21,12 @@ class Panel:
 
         # Plotters
         self.plotters = [
-            plotter.Plotter(50, 250, 200, 100, 1, -1, (255,0,0), self.font, auto=self.auto),
-            plotter.Plotter(50, 350, 200, 100, 1, -1, (0,255,0), self.font, auto=self.auto),
-            plotter.Plotter(50, 450, 200, 100, 1, -1, (0,0,255), self.font, auto=self.auto),
-            plotter.Plotter(300, 250, 200, 100, 1, -1, (255,255,0), self.font, auto=self.auto),
-            plotter.Plotter(300, 350, 200, 100, 1, -1, (0,255,255), self.font, auto=self.auto),
-            plotter.Plotter(300, 450, 200, 100, 1, -1, (255,0,255), self.font, auto=self.auto)
+        plotter.Plotter(50, 250, 200, 100, 1, -1, (255,0,0), self.font, auto=self.auto),
+        plotter.Plotter(50, 350, 200, 100, 1, -1, (0,255,0), self.font, auto=self.auto),
+        plotter.Plotter(50, 450, 200, 100, 1, -1, (0,0,255), self.font, auto=self.auto),
+        plotter.Plotter(300, 250, 200, 100, 1, -1, (255,255,0), self.font, auto=self.auto),
+        plotter.Plotter(300, 350, 200, 100, 1, -1, (0,255,255), self.font, auto=self.auto),
+        plotter.Plotter(300, 450, 200, 100, 1, -1, (255,0,255), self.font, auto=self.auto)
         ]
 
         # Bars

@@ -1,10 +1,7 @@
-
 import argparse
-import sys
-import os
-from GUI.panel import Panel
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from dash_pygame.GUI.panel import Panel
 from communication.mux_tx_rx import SerialManager
 from communication.protocol import string_to_sensor_data
 
@@ -29,11 +26,11 @@ if __name__ == "__main__":
 
         # Update bars
         panel.bars[0].update_cur_val(sd.temp_sensor)
-        panel.bars[1].update_cur_val(sd.ref_diode)
+        # panel.bars[1].update_cur_val(sd.ref_diode)
 
-        # # Update plotters
-        # for i, plotter in enumerate(panel.plotters):
-        #     plotter.update_cur_val(sd.imu[i])
+        # Update plotters
+        for i, plotter in enumerate(panel.plotters):
+            plotter.update_cur_val(sd.imu[i])
 
     sm.on_receive = on_receive
     sm.start()

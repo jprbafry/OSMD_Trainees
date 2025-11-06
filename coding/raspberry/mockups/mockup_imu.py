@@ -1,64 +1,85 @@
 import time
+import math
+import random
+import threading
 import argparse
 import sys
 import os
-import math
-import random
-
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-#from dash_pygame.communication import protocol
-from mux_tx_rx import SerialManager
+from communication import protocol
+from communication.mux_tx_rx import SerialManager
 
 
-# Parse arugments
 def parse_args():
-    parser = argparse.ArgumentParser(description="IMU mockup sender (accelerometer + gyroscope)")
-    parser.add_argument("--name", "-n", choices=['A', 'B'], required=True, help="Simulation node name (A = sender, B = receiver)")
+    parser = argparse.ArgumentParser(description="Threaded IMU mockup sender (accelerometer + gyroscope)")
+    parser.add_argument("--name", "-n", choices=["A", "B"], required=True,
+                        help="Simulation node name (A = sender, B = receiver)")
     parser.add_argument("--debug", "-d", action="store_true", help="Enable debug logs")
+    parser.add_argument("--period", "-p", type=int, default=50, help="Send period in ms")
     return parser.parse_args()
 
+# Thread: continuously update IMU data
+
+def update_imu(sd: protocol.SensorData, lock: threading.Lock, period_ms=20):
+    start_time = time.time()
+    phases = [0, math.pi/3, 2*math.pi/3, math.pi, 4*math.pi/3, 5*math.pi/3]
+    freqs = [random.uniform(1,5) for _ in range(6)]
+    amplitude = 1.0
+    while True:
+        with lock:
+            t = time.time() - start_time
+            for i in range(6):
+                sd.imu[i] = amplitude * math.sin(freqs[i]*t + phases[i])
+        time.sleep(period_ms / 1000)
 
 
-# Mock IMU Sender (Node A)
-def mock_imu_sender(sm: SerialManager, debug=False):
+        time.sleep(period_ms / 1000.0)  # update frequency (~50 Hz)
+
+
+# Main: send updated IMU data
+
+def mock_imu_sender(sm: SerialManager, user_debug=False, period_ms=50):
     """
-    Continuously send simulated IMU data (accelerometer + gyroscope)
-    through SerialManager.
+    Continuously send IMU data through SerialManager,
+    while the IMU values are updated by a background thread.
     """
-    counter = 0.0
+    sd = protocol.SensorData()
+    lock = threading.Lock()
+
+    # Initialize all fields
+    sd.temp_sensor = 0.0
+    sd.motor_encoders[:] = [0, 0, 0, 0]
+    sd.home_switches[:] = [False, False, False, False]
+    sd.potentiometers[:] = [0, 0]
+    sd.ref_diode = 0
+    sd.imu[:] = [0.0] * 6
+
+    # Start IMU update thread
+    threading.Thread(target=update_imu, args=(sd, lock, period_ms), daemon=True).start()
 
     while sm.running.is_set():
-        # --- Generate smooth pseudo-IMU data ---
-        ax = round(1.0 * math.sin(counter / 10.0) + random.uniform(-0.05, 0.05), 3)
-        ay = round(1.0 * math.cos(counter / 10.0) + random.uniform(-0.05, 0.05), 3)
-        az = round(9.81 + random.uniform(-0.1, 0.1), 3)  # gravity component
-
-        gx = round(0.5 * math.sin(counter / 15.0) + random.uniform(-0.02, 0.02), 3)
-        gy = round(0.5 * math.cos(counter / 15.0) + random.uniform(-0.02, 0.02), 3)
-        gz = round(random.uniform(-0.05, 0.05), 3)
-
-        msg = f"{ax},{ay},{az},{gx},{gy},{gz}"
+        with lock:
+            msg = protocol.sensor_data_to_string(sd)
 
         sm.send(msg)
 
-        if debug:
-            print(f"Sent IMU: {msg}")
+        if user_debug:
+            with lock:
+                imu_str = ", ".join(f"{v:.3f}" for v in sd.imu)
+                print(f"Sent IMU: {imu_str}")
 
-        counter += 1
-        time.sleep(1.0)  # send every 1 second
+        time.sleep(period_ms / 1000.0)
 
-
-#To test the mockup IMU sender
 if __name__ == "__main__":
     args = parse_args()
+    sm = SerialManager(simulate=True, name=args.name, debug=args.debug)
+    user_debug = args.debug
 
-    # Create SerialManager in simulated mode
-    sm = SerialManager(simulate=False, name=args.name, debug=args.debug)
     sm.start()
-
+    
     try:
-        mock_imu_sender(sm, debug=args.debug)
+        mock_imu_sender(sm, user_debug=user_debug, period_ms=args.period)
     except KeyboardInterrupt:
         print("\nCtrl+C pressed — stopping IMU sender")
         sm.stop()

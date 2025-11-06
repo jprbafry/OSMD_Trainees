@@ -11,7 +11,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from communication import protocol 
  
 #sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-#from Bar import Bar
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from communication.mux_tx_rx import SerialManager
 
@@ -33,7 +32,6 @@ def mock_temperature_sender(sm: SerialManager):
 
     while sm.running.is_set(): #Block that sends mock temp data
         value = 16 + 8 * math.sin(counter) #oscillates between 8°C and 24°C
-        #msg = f"{value:.2f}"
         
         sd = protocol.SensorData()
         sd.temp_sensor = float(f"{value:.2f}")
@@ -49,7 +47,7 @@ def mock_temperature_sender(sm: SerialManager):
         sm.send(msg)
 
         if user_debug:
-            print(f"Sent temperature: {msg}")
+            print(f" [DEBUG] Sent temperature: {msg}")
         counter += 1 #how fast the temperature changes
         time.sleep(1) #send every 5 seconds
 
