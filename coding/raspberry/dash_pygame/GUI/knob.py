@@ -35,7 +35,7 @@ class Knob(widget.Widget):
         pygame.draw.circle(surface, (100, 100, 100), (self.cx, self.cy), self.radius, 5)
 
         # Draw knob indicator
-        angle = math.radians(self.new_cur_val)
+        angle = math.radians(self.cur_val)
         end_x = self.cx + self.radius * 0.8 * math.cos(angle - math.pi / 2)
         end_y = self.cy + self.radius * 0.8 * math.sin(angle - math.pi / 2)
         pygame.draw.line(surface, (0,255, 0), (self.cx, self.cy), (end_x, end_y), 5)
@@ -45,7 +45,7 @@ class Knob(widget.Widget):
         freq = random.uniform(0.5, 2)
         while self.auto:
             with self.lock:
-                self.new_cur_val = self.min_val + (self.max_val - self.min_val) * (0.5 + 0.5 * math.sin(freq * t))
+                self.cur_val = self.min_val + (self.max_val - self.min_val) * (0.5 + 0.5 * math.sin(freq * t))
             t += 0.05
             time.sleep(0.02)
 
