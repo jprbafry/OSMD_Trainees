@@ -19,14 +19,14 @@ if __name__ == "__main__":
     args = parse_args()
     panel = Panel(args.autodata)
 
-    sm = SerialManager(simulate=args.simulate, name='B', port=args.port, baud=args.baud, debug=args.debug)
+    sm = SerialManager(simulate=args.simulate, name='A', port=args.port, baud=args.baud, debug=args.debug)
 
     def on_receive(msg):
         sd = string_to_sensor_data(msg)
 
         # Update bars
         panel.bars[0].update_cur_val(sd.temp_sensor)
-        # panel.bars[1].update_cur_val(sd.ref_diode)
+        panel.bars[1].update_cur_val(sd.ref_diode)
 
         # Update plotters
         for i, plotter in enumerate(panel.plotters):
