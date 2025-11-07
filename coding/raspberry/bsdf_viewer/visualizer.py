@@ -178,7 +178,7 @@ def parse_radiant_file(file_path):
 # Main
 # ------------------------------
 if __name__ == "__main__":
-    file_path = "bsdf_mon.bsdf"  # Replace with your filename
+    file_path = "examples/bsdf_mon.bsdf"  # Replace with your filename
     data = parse_radiant_file(file_path)
 
     sample_rotations = data ['sample_rotations']
