@@ -1,3 +1,8 @@
 # PyGame Dashboard
 
-Code for a dashboard using PyGame
+To run the demos:
+```bash
+python -m dash_pygame.dashboard
+
+...
+```

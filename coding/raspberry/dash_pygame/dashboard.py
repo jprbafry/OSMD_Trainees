@@ -1,7 +1,7 @@
-
 import argparse
-from dash_pygame.GUI.panel import Panel
 
+
+from dash_pygame.GUI.panel import Panel
 from communication.mux_tx_rx import SerialManager
 from communication.protocol import string_to_sensor_data
 
