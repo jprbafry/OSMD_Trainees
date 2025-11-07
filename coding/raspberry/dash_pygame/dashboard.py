@@ -32,6 +32,12 @@ if __name__ == "__main__":
         for i, plotter in enumerate(panel.plotters):
             plotter.update_cur_val(sd.imu[i])
 
+        # Update knobs
+        for i, knob in enumerate(panel.knobs):
+            knob.update_cur_val(sd.motor_encoders[i]*360/512)
+
+
+
     sm.on_receive = on_receive
     sm.start()
 
