@@ -6,8 +6,82 @@ import os
 import argparse
 
 from communication.mux_tx_rx import SerialManager
-from communication.protocol import SensorData, sensor_data_to_string
+#from communication.protocol import SensorData, sensor_data_to_string
 
+from ComsModule import MessageManager
+
+# Function to update motor encoders data
+def update_motor_encoders(mm: MessageManager, lock: threading.Lock, step=1, period_ms=20):
+    direction = [1]*4
+    motor_encoders = [1]*4
+    while True:
+        with lock:
+            for i in range(4):
+                if i < 2:
+                    lim = 511
+                else:
+                    lim = 255
+                motor_encoders[i] += direction[i]*step
+                if motor_encoders[i] >= lim:
+                    motor_encoders[i] = lim
+                    direction[i] = -1
+                elif motor_encoders[i] <= 0:
+                    motor_encoders[i] = 0
+                    direction[i] = 1
+            mm.setMotorEncoder(motor_encoders)
+        time.sleep(period_ms / 1000)
+
+# Function to update Homing sensors data
+def update_home_switches(mm: MessageManager, lock: threading.Lock, period_ms=40):
+    home_switches = [1]*4
+    while True:
+        with lock:
+            sensors = mm.getSensors()
+            for i in range(4):
+                home_switches[i] = (sensors.motor_encoders[i] < 5)
+            mm.setHomeSwitches(home_switches)
+        time.sleep(period_ms / 1000)
+
+# Function to update Potentiometers data
+def update_potentiometers(mm: MessageManager, lock: threading.Lock, period_ms=40):
+    while True:
+        with lock:
+            sensors = mm.getSensors()
+            mm.setPotentioMeters([sensors.motor_encoders[2], sensors.motor_encoders[3]])
+        time.sleep(period_ms / 1000)
+
+# Function to update Reference Diode data
+def update_ref_diode(mm: MessageManager, lock: threading.Lock, period_ms=100):
+    while True:
+        with lock:
+            mm.setRefDiode(650 + random.randint(-20,20))
+        time.sleep(period_ms / 1000)
+
+# Function to update Temperature data
+def update_temperature(mm: MessageManager, lock: threading.Lock, period_ms=200):
+    start_time = time.time()
+    while True:
+        with lock:
+            t = time.time() - start_time
+            mm.setTempSensor(16 + 8 * math.sin(2*math.pi * t / (24*60*60)))
+        time.sleep(period_ms / 1000)
+
+# Function to update IMU data
+def update_imu(mm: MessageManager, lock: threading.Lock, period_ms=20):
+    start_time = time.time()
+    phases = [0, math.pi/3, 2*math.pi/3, math.pi, 4*math.pi/3, 5*math.pi/3]
+    freqs = [random.uniform(1,5) for _ in range(6)]
+    amplitude = 1.0
+    imu = [1]*6
+    while True:
+        with lock:  
+            t = time.time() - start_time
+            for i in range(6):
+                imu[i] = amplitude * math.sin(freqs[i]*t + phases[i])
+            mm.setImu(imu)
+        time.sleep(period_ms / 1000)
+
+'''
 # Function to update motor encoders data
 def update_motor_encoders(sd: SensorData, lock: threading.Lock, step=1, period_ms=20):
     direction = [1]*4
@@ -70,8 +144,9 @@ def update_imu(sd: SensorData, lock: threading.Lock, period_ms=20):
             t = time.time() - start_time
             for i in range(6):
                 sd.imu[i] = amplitude * math.sin(freqs[i]*t + phases[i])
+                
         time.sleep(period_ms / 1000)
-
+'''
 
 
 
@@ -101,27 +176,29 @@ if __name__ == "__main__":
     sm.start()
 
     # SensorData instance
-    sd = SensorData()
+    #sd = SensorData()
 
     # Initialization of Sensor Data
+    '''
     sd.motor_encoders[:] = [511, 255, 127, 63]
     sd.home_switches[:] = [False, False, False, False]
     sd.potentiometers[:] = [512, 768]
     sd.ref_diode = 900
     sd.temp_sensor = 36.5
     sd.imu[:] = [0.01, 0.02, 0.03, 0.1, 0.2, 0.3]
+    '''
 
     # Lock used to secure reading/writing from/to 'sd' (sensor data variable)
     lock = threading.Lock()
 
     # Start all sensor update threads
     threads = [
-        threading.Thread(target=update_motor_encoders, args=(sd,lock), daemon=True),
-        threading.Thread(target=update_home_switches, args=(sd,lock), daemon=True),
-        threading.Thread(target=update_potentiometers, args=(sd,lock), daemon=True),
-        threading.Thread(target=update_ref_diode, args=(sd,lock), daemon=True),
-        threading.Thread(target=update_temperature, args=(sd,lock), daemon=True),
-        threading.Thread(target=update_imu, args=(sd,lock), daemon=True),
+        threading.Thread(target=update_motor_encoders, args=(sm.msgmanager,lock), daemon=True),
+        threading.Thread(target=update_home_switches, args=(sm.msgmanager,lock), daemon=True),
+        threading.Thread(target=update_potentiometers, args=(sm.msgmanager,lock), daemon=True),
+        threading.Thread(target=update_ref_diode, args=(sm.msgmanager,lock), daemon=True),
+        threading.Thread(target=update_temperature, args=(sm.msgmanager,lock), daemon=True),
+        threading.Thread(target=update_imu, args=(sm.msgmanager,lock), daemon=True),
     ]
     for t in threads:
         t.start()
@@ -131,9 +208,17 @@ if __name__ == "__main__":
     try:
         while True:
             with lock:
-                msg = sensor_data_to_string(sd)
-            print(msg)
+                #msg = sensor_data_to_string(sd)
+
+                len = sm.msgmanager.packPayload()
+                msg = sm.msgmanager.getPayload()[:len] 
+
+            sm.send(0xAA) #Send start byte
+
             sm.send(msg)
+          
+            sm.send(0xBB) #Send end byte
+
             time.sleep(update_period / 1000)
     except KeyboardInterrupt:
         sm.stop()
@@ -142,3 +227,26 @@ if __name__ == "__main__":
             if os.path.exists(f):
                 os.remove(f)
 
+"""
+How to implement our custom comms protocol:
+    1. Include custom comms files in folder and allow for python code to call it using Pybind11
+    2. Create instance of class to save sensor data
+    3. Adjust update_*sensor* functions called in threads to update sensor data and mask in protocol
+    4. Replace sensor_data_to_string(sd) with our own function
+    5. Call protocol functions for sending data over serial <--
+
+
+    QUESTIONS: 
+
+    Is this repo intended to run in a virtual environment? If so, can we add pybind11 to it? else, can we add it as submodule in github?
+
+    Should we simulate it from our end in Malmö, i.e. hardware agnostic, keeping the a-to-b.txt and b-to-a.txt solution for testing purposes? 
+    Or should we do it with the actual Arduino and Raspberry Pi?
+ 
+    ANSWERS:
+
+    We do create our own virtual envs, but we have not made it formal (we have not created the requirements.txt).
+
+    I think having it agnostic is good, since we can test without hardware, just please make sure it runs with the arduino aswell :) 
+
+"""
