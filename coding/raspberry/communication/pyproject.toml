@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools", "pybind11", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ComsModule"
+version = "0.1.0"
+
+[tool.setuptools]
+packages = ["ComsModule"]
+
+[tool.pybind11]
+modules = [
+    { name = "ComsModule.core", sources = [ "protocol/MessageManagerBindings.cpp", "protocol/MessageManager.cpp"], include_dirs = ["ComsModule"]}
+]

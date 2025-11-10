@@ -2,6 +2,18 @@ import threading
 import os
 import time
 import logging
+import numpy as np
+from enum import IntEnum
+
+
+from ComsModule import MessageManager
+
+
+class defines(IntEnum):
+    START_BYTE = 0xAA
+    END_BYTE = 0xBB
+    WAIT_FOR_START = 0XFE
+    WAIT_FOR_PAYLOAD = 0XFF
 
 try:
     import serial
@@ -36,18 +48,35 @@ class FileBackedFakeSerial:
             open(f, 'a').close()
 
     def write(self, data: bytes):
+        #print(f"Self name in write: {self.name}")
+        #print(f"Writing to file: {self.write_file.split("/")[-1]}")
         with open(self.write_file, 'a', encoding='utf-8') as f:
-            f.write(data.decode('ascii'))
+            #f.write(data.decode("ascii"))
+            print(f"Type: {type(data)}")
+
+            if(type(data) == int):
+                f.write(str(data))
+            elif(type(data) == np.ndarray):
+                for d in data:
+                    if d and (d != "[" and d != "]"):
+                        f.write(str(d) + " ")
+            f.write("\n")
 
     def readline(self) -> bytes:
         line = ''
         with open(self.read_file, 'r+', encoding='utf-8') as f:
+            f.seek(0)
+            #print(f"Self name in read: {self.name}")
+            #print(f"Reading from file: {self.read_file.split("/")[-1]}")
+            #print(f"File content before reading: {str(content)}")
             lines = f.readlines()
+            #print(f"Lines is: {lines}")
             if lines:
                 line = lines[0]
                 f.seek(0)
                 f.writelines(lines[1:])
                 f.truncate()
+                print(f"Line is: {line}")
         return line.encode('ascii')
 
     def flush(self):
@@ -65,6 +94,8 @@ class SerialManager:
         self.lock = threading.Lock()
         self.on_receive = None
         self.simulate = simulate
+        self.msgmanager = MessageManager()
+        self.readState = defines.WAIT_FOR_START
 
         if debug:
             logger.setLevel(logging.DEBUG)
@@ -79,7 +110,7 @@ class SerialManager:
         else:
             try:
                 logger.info(f"Opening real serial port {port} @ {baud}")
-
+                #Initialize our msgManager
                 self.ser = serial.Serial(
                     port=port,
                     baudrate=baud,
@@ -104,8 +135,20 @@ class SerialManager:
                 if self.send_queue:
                     msg = self.send_queue.pop(0)
                     try:
-                        self.ser.write((msg + "\n").encode('ascii'))
-                        logger.debug(f"TX: {msg}")
+
+                        # Tror vi kan skicka hela payloaden på en gång?
+                        '''
+                        for byte in self.msgmanager.getPayload():
+                            if byte:
+                                self.ser.write(str(byte))
+                                print(f"Wrote {byte} to serial")
+                                logger.debug(f"TX debug: {str(byte)}")
+                        '''
+
+                        self.ser.write(msg)
+
+                        #print(f"Sent: {msg}")
+
                     except Exception as e:
                         logger.error(f"TX error: {e}")
             time.sleep(0.05)
@@ -115,18 +158,53 @@ class SerialManager:
     def rx_loop(self):
         while self.running.is_set():
             try:
-                line = self.ser.readline().decode('ascii', errors='ignore').strip()
+                """
+                line = self.ser.readline().decode('ascii', errors='ignore')
                 if line:
                     if self.on_receive:
                         self.on_receive(line)
                         logger.debug(f"RX: {line}")
                     else:
                         logger.debug(f"RX: {line}")
+                        """
+                self.read_message_state_machine()
             except Exception as e:
                 logger.error(f"RX error: {e}")
             time.sleep(0.005)
         logger.debug("RX thread stopped")
 
+
+    def read_message_state_machine(self):
+        byte = self.ser.readline().decode('ascii', errors='ignore').split()
+        for b in byte:
+            #print(f"Byte: {b}")
+            #print(f"START_BYTE: {defines.START_BYTE}")
+            #print(f"END_BYTE: {defines.END_BYTE}")
+            #print(f"WAIT_FOR_START: {defines.WAIT_FOR_START}")
+            #print(f"WAIT_FOR_PAYLOAD: {defines.WAIT_FOR_PAYLOAD}")
+
+            self.on_receive(self.msgmanager)
+            
+            if(self.readState == defines.WAIT_FOR_START):
+                print("In WAIT_FOR_START")
+                if (int(b) == defines.START_BYTE):
+                    print("Found START_BYTE")
+                    self.readState = defines.WAIT_FOR_PAYLOAD
+
+            elif(self.readState == defines.WAIT_FOR_PAYLOAD):
+                try:
+                    self.msgmanager.fillPayload(int(b))
+                except Exception as e:
+                    print(f"Error in fillPayload(): {e}")
+                #print("IN WAIT_FOR_PAYLOAD")
+                if (int(b) == defines.END_BYTE):
+                    print("Found END_BYTE")
+                    self.msgmanager.loadData()
+                    print(f"Temp sensor: {self.msgmanager.getSensors().temp_sensor}")
+                    self.readState = defines.WAIT_FOR_START
+        
+        
+    
     
     def start(self):
         self.running.set()
