@@ -23,9 +23,9 @@ class Panel:
         # Knobs
         self.knobs = [
             knob.Knob(150, 110, 60, self.font, 0, 360, auto=self.auto),
-            knob.Knob(400, 110, 60, self.font, 0, 360, auto=self.auto)
+            knob.Knob(400, 110, 60, self.font, 0, 360, auto=self.auto),
         ]
-
+        # Knobs Home Indicator
         self.knobs_indicators = [
             indicator.Indicator(self.knobs[0].cx - self.knobs[0].radius // 7, self.knobs[0].cy - self.knobs[0].radius -5, 16),
             indicator.Indicator(self.knobs[1].cx - self.knobs[0].radius // 7, self.knobs[0].cy - self.knobs[0].radius -5, 16),
@@ -34,11 +34,15 @@ class Panel:
         # Sliders
         self.sliders = [
             slider.Slider(50, 200, 200, 0, 0, 180, self.font, auto=self.auto),
-            slider.Slider(300, 200, 200, 0, 0, 180, self.font, auto=self.auto)
+            slider.Slider(300, 200, 200, 0, 0, 180, self.font, auto=self.auto),
         ]
 
-        # # #Home Indicator
-        # self.indicator = indicator.Indicator(850, 120, 60)
+        # Sliders Home Indicator
+        self.sliders_indicators = [
+            indicator.Indicator(self.sliders[0].x -6,self.sliders[0].y -7 ,14), #left slider
+            indicator.Indicator(self.sliders[1].x -6, self.sliders[1].y -7,14), #right slider
+        ]
+
 
         # Plotters
         self.plotters = [
@@ -60,7 +64,7 @@ class Panel:
 
 
         # All widgets together for easy drawing
-        self.widgets = self.knobs + self.sliders + self.plotters + self.bars + self.knobs_indicators
+        self.widgets = self.knobs + self.sliders + self.plotters + self.bars + self.knobs_indicators + self.sliders_indicators
 
     def draw(self):
         """Draw all widgets"""
