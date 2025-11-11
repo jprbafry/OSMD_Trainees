@@ -18,6 +18,17 @@ class Panel:
         self.font = pygame.font.SysFont(None, 24)
         self.auto = auto
 
+     # Knobs
+        self.knobs = [
+            knob.Knob(150, 110, 60, self.font, 0, 360, auto=self.auto),
+            knob.Knob(400, 110, 60, self.font, 0, 360, auto=self.auto)
+        ]
+
+    # Sliders
+        self.sliders = [
+            slider.Slider(50, 200, 200, 0, 0, 180, self.font, auto=self.auto),
+            slider.Slider(300, 200, 200, 0, 0, 180, self.font, auto=self.auto)
+        ]
 
         # Plotters
         self.plotters = [
@@ -37,8 +48,9 @@ class Panel:
             bar.Bar(600, 50, 30, 500, 0, 1024, c_b2, "B 2", self.font, auto=self.auto)
         ]
 
+
         # All widgets together for easy drawing
-        self.widgets = self.plotters + self.bars
+        self.widgets = self.knobs + self.sliders + self.plotters + self.bars
 
     def draw(self):
         """Draw all widgets"""
