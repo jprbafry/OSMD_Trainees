@@ -6,10 +6,12 @@ from PyQt6 import QtCore
 
 from .widget import Widget, FONT_SIZE, BLACK, WHITE
 
-class Color_bar(Widget):
+class ColorBar(Widget):
     def __init__(self, title, data, pos, size, x_range, y_range):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
+
+
     def draw(self):
         """function to draw the color gradient bar"""
         p = pg.PlotItem(title=f"<span style='font-size:{FONT_SIZE}pt; color:{BLACK}'>{self.title}</span>")
@@ -53,18 +55,20 @@ class Color_bar(Widget):
         p.addItem(self.border)
         p.addItem(self.indicator)
         return p, self.value_text
-    
-    def update(self):
-        if self.title == "Temp":
-            if self.data.temp_sensor != 0.0:
-                self.indicator.setPos(self.data.temp_sensor)
-                self.border.setPos(self.data.temp_sensor)
-                self.value_text.setText(f"{self.data.temp_sensor: .2f}°C")
-        else:
-            if self.data.ref_diode != 0:
-                # normalization
-                ref_diode_base = 650
-                value = self.data.ref_diode / ref_diode_base
-                self.indicator.setPos(value)
-                self.border.setPos(value)
-                self.value_text.setText(f"{value * 100: .2f}%")
+
+
+    def update(self, has_data):
+        if has_data:
+            if self.title == "Temp":
+                if self.data.temp_sensor != 0.0:
+                    self.indicator.setPos(self.data.temp_sensor)
+                    self.border.setPos(self.data.temp_sensor)
+                    self.value_text.setText(f"{self.data.temp_sensor: .2f}°C")
+            else:
+                if self.data.ref_diode != 0:
+                    # normalization
+                    ref_diode_base = 650
+                    value = self.data.ref_diode / ref_diode_base
+                    self.indicator.setPos(value)
+                    self.border.setPos(value)
+                    self.value_text.setText(f"{value * 100: .2f}%")

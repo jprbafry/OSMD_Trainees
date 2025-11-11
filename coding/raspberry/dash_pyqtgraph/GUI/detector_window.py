@@ -4,10 +4,11 @@ import cv2
 
 from .widget import Widget, FONT_SIZE, BLACK
 
-class Detector_window(Widget):
+class DetectorWindow(Widget):
     def __init__(self, title, data, pos, size, x_range, y_range):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
+
 
     def draw(self):
         """function to draw the feed from the camera/detector"""
@@ -23,16 +24,18 @@ class Detector_window(Widget):
         # TODO: replace this local video file with real detector feed
         self.video_path = cv2.samples.findFile("./dash_pyqtgraph/GUI/tree.avi")
         self.capture = None
-        
+
         return p
 
-    def update(self):
-        if self.capture is None:
-            self.capture = cv2.VideoCapture(self.video_path)
-        ret, frame = self.capture.read()
-        if not ret:
-            self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)  # loop
+
+    def update(self, has_data):
+        if has_data:
+            if self.capture is None:
+                self.capture = cv2.VideoCapture(self.video_path)
             ret, frame = self.capture.read()
+            if not ret:
+                self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)  # loop
+                ret, frame = self.capture.read()
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame = np.rot90(frame, 3)
             self.img.setImage(frame, autoLevels = False)

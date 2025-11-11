@@ -8,6 +8,8 @@ class Sinusoidal(Widget):
     def __init__(self, title, data, pos, size, x_range, y_range):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
+
+
     def draw(self):
         """function to draw imu graphs (3 graphs in one plot)"""
         self.item_no = 0 if self.title == "Accelerator" else 3
@@ -31,10 +33,12 @@ class Sinusoidal(Widget):
 
         return self.p
 
-    def update(self, new_data):
-        self.data = new_data
-        for item in self.last_item:
-            self.p.removeItem(item)
 
-        for i in range(0,3):
-            self.last_item[i] = self.p.plot(list(self.data[i + self.item_no])[i:self.window], pen=pg.mkPen(self.colors[i], width=2), name = self.names[i])
+    def update(self, has_data, new_data):
+        if has_data:
+            self.data = new_data
+            for item in self.last_item:
+                self.p.removeItem(item)
+
+            for i in range(0,3):
+                self.last_item[i] = self.p.plot(list(self.data[i + self.item_no])[i:self.window], pen=pg.mkPen(self.colors[i], width=2), name = self.names[i])

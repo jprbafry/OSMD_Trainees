@@ -7,7 +7,8 @@ class Slider(Widget):
     def __init__(self, title, data, pos, size, x_range, y_range):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
-    
+
+
     def draw(self):
       """function to draw polar rotations"""
       global FONT_SIZE, BLACK, RED, BLUE
@@ -27,7 +28,7 @@ class Slider(Widget):
       # angle text
       self.angle_text = pg.TextItem("0°", anchor=(0, 0), color=BLACK)
       self.angle_text.setFont(QFont("Arial", FONT_SIZE))
-      self.angle_text.setPos(70, 30)
+      self.angle_text.setPos(70, 40)
       self.p.addItem(self.angle_text)
 
       self.p.setPos(self.pos[0], self.pos[1])
@@ -35,10 +36,12 @@ class Slider(Widget):
       self.p.getViewBox().setFixedHeight(self.size[1])
 
       return self.p
-    
-    def update(self):
+
+
+    def update(self, has_data):
         """callback update function"""
-        raw_steps = int(self.data.motor_encoders[0]) if self.title == "Light Source" else int(self.data.motor_encoders[1])
-        angle = raw_steps / 512 * 180
-        self.dot.setData([angle], [0.5])
-        self. angle_text.setText(f"{angle:.2f}°")
+        if has_data:
+            raw_steps = int(self.data.motor_encoders[0]) if self.title == "Light Source" else int(self.data.motor_encoders[1])
+            angle = raw_steps / 512 * 180
+            self.dot.setData([angle], [0.5])
+            self. angle_text.setText(f"{angle:.2f}°")

@@ -57,30 +57,6 @@ class FileBackedFakeSerial:
     def close(self):
         pass
 
-class FixedQueue:
-    def __init__(self, initial = [], maxLen = 1024):
-        self.queue = deque(initial, maxLen)
-
-    # append from the left
-    def append(self, new_element):
-        self.queue.appendleft(new_element)
-
-    # pop from the right
-    def pop(self):
-        if self.queue:
-            return self.queue.pop()
-
-        return None
-
-    def __len__(self):
-        return len(self.queue)
-
-    def __iter__(self):
-        return iter(self.queue)
-    
-    def __getitem__(self, index):
-        return self.queue[index]
-
 
 # Class to handle Tx/Rx data over real or simulated serial
 class SerialManager:
@@ -88,7 +64,7 @@ class SerialManager:
     def __init__(self, port="/dev/ttyACM0", baud=38400, simulate=True, name=None, debug=False):
         self.running = threading.Event()
         self.send_queue = []
-        self.recv_queue = FixedQueue([], 1024)
+        self.recv_queue = deque([], 1024)
         self.lock = threading.Lock()
         self.simulate = simulate
 

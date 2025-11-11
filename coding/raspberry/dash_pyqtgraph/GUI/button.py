@@ -9,6 +9,7 @@ class Button(Widget):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
 
+
     def draw(self):
         """function to draw home switches"""
         rotation = self.title[0]
@@ -31,20 +32,20 @@ class Button(Widget):
                 padding: 5px 15px;
             }}
         """)
-        # btn_proxy = scene.addWidget(button)
-        # btn_proxy.setPos(self.pos[0], self.pos[1])
-
         title_label = pg.TextItem(f"{device}\n{rotation}", anchor=(0.5, 0.5), color=BLACK)
         title_label.setFont(QFont("Arial", FONT_SIZE))
         title_label.setPos(self.pos[0] + 30, self.pos[1] - 20)
 
         return self.button, title_label
 
+
     def initialize(self, btn_proxy):
         self.btn_proxy = btn_proxy
         self.btn_proxy.setPos(self.pos[0], self.pos[1])
 
-    def update(self):
-        checked = self.data.home_switches[self.item_no]
-        self.button.setChecked(checked)
-        self.button.setText("ON" if checked else "OFF")
+
+    def update(self, has_data):
+        if has_data:
+            checked = self.data.home_switches[self.item_no]
+            self.button.setChecked(checked)
+            self.button.setText("ON" if checked else "OFF")

@@ -9,6 +9,7 @@ class Knob(Widget):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
 
+
     def draw(self):
       """function to draw azimuthal rotation graphs"""
       angles = np.linspace(0, 2*np.pi, 360)
@@ -46,14 +47,16 @@ class Knob(Widget):
       self.p.getViewBox().setFixedHeight(self.size[1])
 
       return self.p
-    
-    def update(self):
-        raw_steps = int(self.data.motor_encoders[2]) if self.title == "Light Source" else int(self.data.motor_encoders[3])
-        angle = raw_steps / 512 * 360
-        rad = np.deg2rad(angle)
-        # clockwise, swap sin/cos and invert y
-        x = np.sin(rad)
-        y = np.cos(rad)
-        self.dot.setData([x], [y])
-        self.angle_text.setText(f"{angle:.2f}°")
-        self.angle_text.setPos(0, 0)
+
+
+    def update(self, has_data):
+        if has_data:
+            raw_steps = int(self.data.motor_encoders[2]) if self.title == "Light Source" else int(self.data.motor_encoders[3])
+            angle = raw_steps / 512 * 360
+            rad = np.deg2rad(angle)
+            # clockwise, swap sin/cos and invert y
+            x = np.sin(rad)
+            y = np.cos(rad)
+            self.dot.setData([x], [y])
+            self.angle_text.setText(f"{angle:.2f}°")
+            self.angle_text.setPos(0, 0)
