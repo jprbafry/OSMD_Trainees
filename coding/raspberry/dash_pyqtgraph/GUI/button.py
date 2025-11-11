@@ -5,13 +5,13 @@ from PyQt6.QtWidgets import QPushButton
 from .widget import Widget, FONT_SIZE, BLACK, WHITE, GREY, GREEN
 
 class Button(Widget):
+    """class to draw home switches"""
     def __init__(self, title, data, pos, size, x_range, y_range):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
 
 
     def draw(self):
-        """function to draw home switches"""
         rotation = self.title[0]
         device = self.title[1]
         self.item_no = 0 if device == "Light Source" else 1

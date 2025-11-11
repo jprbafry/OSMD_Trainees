@@ -7,13 +7,13 @@ from PyQt6 import QtCore
 from .widget import Widget, FONT_SIZE, BLACK, WHITE
 
 class ColorBar(Widget):
+    """class to draw the color gradient bar"""
     def __init__(self, title, data, pos, size, x_range, y_range):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
 
 
     def draw(self):
-        """function to draw the color gradient bar"""
         p = pg.PlotItem(title=f"<span style='font-size:{FONT_SIZE}pt; color:{BLACK}'>{self.title}</span>")
         p.hideAxis("left")
         p.hideAxis("bottom")

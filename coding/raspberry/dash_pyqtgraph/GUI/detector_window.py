@@ -5,13 +5,13 @@ import cv2
 from .widget import Widget, FONT_SIZE, BLACK
 
 class DetectorWindow(Widget):
+    """function to draw the feed from the camera/detector"""
     def __init__(self, title, data, pos, size, x_range, y_range):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
 
 
     def draw(self):
-        """function to draw the feed from the camera/detector"""
         p = pg.PlotItem(title=f"<span style='font-size:{FONT_SIZE}pt; color:{BLACK}'>{self.title}</span>")
         p.hideAxis("left")
         p.hideAxis("bottom")

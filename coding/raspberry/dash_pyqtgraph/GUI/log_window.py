@@ -36,13 +36,13 @@ class QTextEditLogger(logging.Handler):
 
 
 class LogWindow(Widget):
+    """class to draw logging widget"""
     def __init__(self, title, data, pos, size, x_range, y_range):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
 
 
     def draw(self):
-        """function to draw logging widget"""
         # title
         title = pg.TextItem(self.title, anchor=(0.5, 1), color=BLACK)
         title.setFont(QFont("Arial", FONT_SIZE))

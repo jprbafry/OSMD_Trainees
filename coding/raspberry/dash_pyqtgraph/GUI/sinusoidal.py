@@ -5,13 +5,13 @@ from PyQt6.QtGui import QFont
 from .widget import Widget, FONT_SIZE, BLACK, RED, BLUE, GREEN, Q_SIZE
 
 class Sinusoidal(Widget):
+    """class to draw imu graphs (3 graphs in one plot)"""
     def __init__(self, title, data, pos, size, x_range, y_range):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
 
 
     def draw(self):
-        """function to draw imu graphs (3 graphs in one plot)"""
         self.item_no = 0 if self.title == "Accelerator" else 3
         self.p = pg.PlotItem(title=f"<span style='font-size:{FONT_SIZE}pt; color:{BLACK}'>{self.title}</span>")
         legend = self.p.addLegend()

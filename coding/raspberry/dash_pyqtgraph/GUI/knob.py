@@ -5,13 +5,13 @@ from PyQt6.QtGui import QFont
 from .widget import Widget, FONT_SIZE, BLACK, RED, BLUE
 
 class Knob(Widget):
+    """class to draw azimuthal rotation graphs"""
     def __init__(self, title, data, pos, size, x_range, y_range):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
 
 
     def draw(self):
-      """function to draw azimuthal rotation graphs"""
       angles = np.linspace(0, 2*np.pi, 360)
       x = np.cos(angles)
       y = np.sin(angles)

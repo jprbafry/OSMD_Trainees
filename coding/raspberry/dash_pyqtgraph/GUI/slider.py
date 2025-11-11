@@ -4,13 +4,13 @@ from PyQt6.QtGui import QFont
 from .widget import Widget, FONT_SIZE, BLACK, RED, BLUE
 
 class Slider(Widget):
+    """class to draw polar rotations"""
     def __init__(self, title, data, pos, size, x_range, y_range):
         super().__init__(title=title, data=data, pos=pos, size=size,
                          x_range=x_range, y_range=y_range)
 
 
     def draw(self):
-      """function to draw polar rotations"""
       global FONT_SIZE, BLACK, RED, BLUE
       self.p = pg.PlotItem(title=f"<span style='font-size:{FONT_SIZE}pt; color:{BLACK}'>Polar Rotation ({self.title})</span>")
 
@@ -39,7 +39,6 @@ class Slider(Widget):
 
 
     def update(self, has_data):
-        """callback update function"""
         if has_data:
             raw_steps = int(self.data.motor_encoders[0]) if self.title == "Light Source" else int(self.data.motor_encoders[1])
             angle = raw_steps / 512 * 180

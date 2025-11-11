@@ -15,7 +15,7 @@ import pyqtgraph as pg
 from PyQt6 import QtCore
 
 from communication.mux_tx_rx import SerialManager
-import dash_pyqtgraph.GUI as GUI
+from dash_pyqtgraph import GUI
 
 
 # setups for logging to console
@@ -126,8 +126,6 @@ def recv_msgs(args):
 
 def draw_dashboard():
     """function to draw the whole dashboard"""
-    global has_data
-
     view.setScene(scene)
     view.setWindowTitle("Dashboard")
     view.resize(1260, 840)
