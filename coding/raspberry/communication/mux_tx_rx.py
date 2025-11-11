@@ -2,6 +2,7 @@ import threading
 import os
 import time
 import logging
+from collections import deque
 
 try:
     import serial
@@ -56,14 +57,39 @@ class FileBackedFakeSerial:
     def close(self):
         pass
 
+class FixedQueue:
+    def __init__(self, initial = [], maxLen = 1024):
+        self.queue = deque(initial, maxLen)
+
+    # append from the left
+    def append(self, new_element):
+        self.queue.appendleft(new_element)
+
+    # pop from the right
+    def pop(self):
+        if self.queue:
+            return self.queue.pop()
+
+        return None
+
+    def __len__(self):
+        return len(self.queue)
+
+    def __iter__(self):
+        return iter(self.queue)
+    
+    def __getitem__(self, index):
+        return self.queue[index]
+
+
 # Class to handle Tx/Rx data over real or simulated serial
 class SerialManager:
 
     def __init__(self, port="/dev/ttyACM0", baud=38400, simulate=True, name=None, debug=False):
         self.running = threading.Event()
         self.send_queue = []
+        self.recv_queue = FixedQueue([], 1024)
         self.lock = threading.Lock()
-        self.on_receive = None
         self.simulate = simulate
 
         if debug:
@@ -117,11 +143,8 @@ class SerialManager:
             try:
                 line = self.ser.readline().decode('ascii', errors='ignore').strip()
                 if line:
-                    if self.on_receive:
-                        self.on_receive(line)
-                        logger.debug(f"RX: {line}")
-                    else:
-                        logger.debug(f"RX: {line}")
+                    self.on_receive(line)
+                    logger.debug(f"RX: {line}")
             except Exception as e:
                 logger.error(f"RX error: {e}")
             time.sleep(0.005)
@@ -147,3 +170,14 @@ class SerialManager:
     def send(self, msg):
         with self.lock:
             self.send_queue.append(msg)
+
+    def on_receive(self, line):
+        with self.lock:
+            self.recv_queue.append(line)
+
+    def recv(self):
+        with self.lock:
+            logger.debug(len(self.recv_queue))
+            if len(self.recv_queue) != 0:
+                return self.recv_queue.pop()
+            return None
