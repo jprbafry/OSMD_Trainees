@@ -9,7 +9,7 @@ from dash_pygame.GUI import widget
 
 #Knob class
 class Knob(widget.Widget):
-    def __init__(self, cx, cy, radius, font, min_val=0, max_val=360, auto=False):
+    def __init__(self, cx, cy, radius, min_val, max_val, font, auto=False):
         # Call base Widget initializer
         super().__init__(x=cx, y=cy, width=radius*2, height=radius*2,
                          min_val=min_val, max_val=max_val)
@@ -35,7 +35,7 @@ class Knob(widget.Widget):
         pygame.draw.circle(surface, (100, 100, 100), (self.cx, self.cy), self.radius, 5)
 
         # Draw knob indicator
-        angle = math.radians(self.new_cur_val)
+        angle = math.radians(self.cur_val)
         end_x = self.cx + self.radius * 0.8 * math.cos(angle - math.pi / 2)
         end_y = self.cy + self.radius * 0.8 * math.sin(angle - math.pi / 2)
         pygame.draw.line(surface, (0,255, 0), (self.cx, self.cy), (end_x, end_y), 5)
@@ -45,7 +45,7 @@ class Knob(widget.Widget):
         freq = random.uniform(0.5, 2)
         while self.auto:
             with self.lock:
-                self.new_cur_val = self.min_val + (self.max_val - self.min_val) * (0.5 + 0.5 * math.sin(freq * t))
+                self.cur_val = self.min_val + (self.max_val - self.min_val) * (0.5 + 0.5 * math.sin(freq * t))
             t += 0.05
             time.sleep(0.02)
 
@@ -60,12 +60,8 @@ if __name__ == "__main__":
         cy = 150
         min_val = 0
         max_val = 360
-        knob = Knob(cx, cy, radius, font, min_val, max_val, auto=True)
+        knob = Knob(cx, cy, radius, min_val, max_val, font, auto=True)
         return [knob]   # always return a list of widgets
 
 
     demo.run_widget_demo(knob_factory)
-
-
-
-    

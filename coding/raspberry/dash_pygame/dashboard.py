@@ -24,6 +24,12 @@ if __name__ == "__main__":
     def on_receive(msg):
         sd = string_to_sensor_data(msg)
 
+
+        # Update knobs
+        for i, knob in enumerate(panel.knobs):
+            knob.update_cur_val(sd.motor_encoders[i]*360/512)
+
+            
         # Update bars
         panel.bars[0].update_cur_val(sd.temp_sensor)
         panel.bars[1].update_cur_val(sd.ref_diode)

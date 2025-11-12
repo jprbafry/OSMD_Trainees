@@ -22,11 +22,10 @@ def get_color(ratio, colors):
 
 # Bar Class
 class Bar(widget.Widget):
-    def __init__(self, x, y, width, height, min_val, max_val, colors, label, font, auto=False):
+    def __init__(self, x, y, width, height, min_val, max_val, colors, font, auto=False):
         super().__init__(x, y, width, height, min_val, max_val)
         self.cur_val = (self.max_val-self.min_val)/2
         self.colors = colors
-        self.label = label
         self.font = font
         self.rect_height = 5
         self.auto = auto
@@ -40,9 +39,7 @@ class Bar(widget.Widget):
     def draw(self, surface):
         if not self.visible:
             return
-        # Label
-        label_surf = self.font.render(self.label, True, (255, 255, 255))
-        surface.blit(label_surf, (self.x, self.y - 25))
+        
         # Gradient bar
         for i in range(self.height):
             ratio = i / self.height
@@ -79,8 +76,7 @@ if __name__ == "__main__":
         min_val = 0
         max_val = 100
         colors = [(0, 0, 255), (255, 255, 0), (255, 0, 0)]
-        text = "Bar"
-        bar = Bar(cx, cy, width, height, min_val, max_val, colors, text, font, auto=True)
+        bar = Bar(cx, cy, width, height, min_val, max_val, colors, font, auto=True)
 
         return [bar]  # always return a list of widgets
 
