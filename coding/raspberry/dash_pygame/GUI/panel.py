@@ -25,6 +25,12 @@ class Panel:
             knob.Knob(400, 110, 60, 0, 360, self.font, auto=self.auto)
         ]
 
+        # Sliders
+        self.sliders = [
+            slider.Slider( 90, 210, 120, 0, 0, 180, self.font, auto=self.auto),
+            slider.Slider(340, 210, 120, 0, 0, 180, self.font, auto=self.auto)
+        ]
+
         # Plotters
         self.plotters = [
             plotter.Plotter(50, 250, 200, 100, 1, -1, (255,0,0), self.font, auto=self.auto),
@@ -43,8 +49,11 @@ class Panel:
             bar.Bar(600, 50, 30, 500, 0, 1024, c_b2, self.font, auto=self.auto)
         ]
 
+        # CamBox
+        self.cambox = [cambox.CamBox(x=670, y=50, width=300, height=300, auto=self.auto)]
+
         # All widgets together for easy drawing
-        self.widgets = self.knobs + self.plotters + self.bars
+        self.widgets = self.knobs + self.sliders + self.plotters + self.bars + self.cambox
 
     def draw(self):
         """Draw all widgets"""
