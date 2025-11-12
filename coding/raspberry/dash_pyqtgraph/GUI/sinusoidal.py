@@ -11,7 +11,7 @@ class Sinusoidal(Widget):
                          x_range=x_range, y_range=y_range)
 
 
-    def draw(self):
+    def draw(self, scene):
         self.item_no = 0 if self.title == "Accelerator" else 3
         self.p = pg.PlotItem(title=f"<span style='font-size:{FONT_SIZE}pt; color:{BLACK}'>{self.title}</span>")
         legend = self.p.addLegend()
@@ -31,7 +31,7 @@ class Sinusoidal(Widget):
         self.p.getViewBox().setFixedWidth(self.size[0])
         self.p.getViewBox().setFixedHeight(self.size[1])
 
-        return self.p
+        scene.addItem(self.p)
 
 
     def update(self, has_data, new_data):

@@ -13,7 +13,7 @@ class ColorBar(Widget):
                          x_range=x_range, y_range=y_range)
 
 
-    def draw(self):
+    def draw(self, scene):
         p = pg.PlotItem(title=f"<span style='font-size:{FONT_SIZE}pt; color:{BLACK}'>{self.title}</span>")
         p.hideAxis("left")
         p.hideAxis("bottom")
@@ -54,7 +54,9 @@ class ColorBar(Widget):
         self.border = pg.InfiniteLine(angle=0, pos=self.y_range[0], pen=pg.mkPen(BLACK, width = 6))
         p.addItem(self.border)
         p.addItem(self.indicator)
-        return p, self.value_text
+
+        scene.addItem(p)
+        scene.addItem(self.value_text)
 
 
     def update(self, has_data):

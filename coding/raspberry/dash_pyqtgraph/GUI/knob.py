@@ -11,24 +11,24 @@ class Knob(Widget):
                          x_range=x_range, y_range=y_range)
 
 
-    def draw(self):
+    def draw(self, scene):
       angles = np.linspace(0, 2*np.pi, 360)
       x = np.cos(angles)
       y = np.sin(angles)
-      self.p = pg.PlotItem(title=f"<span style='font-size:{FONT_SIZE}pt; color:{BLACK}'>Azimuthal Rotation ({self.title})</span>")
+      p = pg.PlotItem(title=f"<span style='font-size:{FONT_SIZE}pt; color:{BLACK}'>Azimuthal Rotation ({self.title})</span>")
 
       # skeleton
-      self.p.plot(x, y, pen=pg.mkPen(BLACK, width=2))
-      self.p.setAspectLocked(True)
-      self.p.setRange(xRange=self.x_range, yRange=self.y_range)
-      self.p.hideAxis('left')
-      self.p.hideAxis('bottom')
+      p.plot(x, y, pen=pg.mkPen(BLACK, width=2))
+      p.setAspectLocked(True)
+      p.setRange(xRange=self.x_range, yRange=self.y_range)
+      p.hideAxis('left')
+      p.hideAxis('bottom')
 
       # 0/360 degree markers
       zero_marker = pg.ScatterPlotItem([0.0], [1.0], symbol = 't', size=10, brush = BLACK)
-      self.p.addItem(zero_marker)
+      p.addItem(zero_marker)
       zero_text = pg.TextItem("0° / 360°", anchor=(0.5, 0), color = BLACK)
-      self.p.addItem(zero_text)
+      p.addItem(zero_text)
       zero_text.setFont(QFont("Arial", FONT_SIZE))
       zero_text.setPos(0,1.5)
 
@@ -37,16 +37,16 @@ class Knob(Widget):
 
       # angle text
       self.angle_text = pg.TextItem("0°", anchor=(0.5, 0.5), color=BLACK)
-      self.p.addItem(self.dot)
-      self.p.addItem(self.angle_text)
+      p.addItem(self.dot)
+      p.addItem(self.angle_text)
       self.angle_text.setFont(QFont("Arial", FONT_SIZE))
       self.angle_text.setPos(0,0)
 
-      self.p.setPos(self.pos[0], self.pos[1])
-      self.p.getViewBox().setFixedWidth(self.size[0])
-      self.p.getViewBox().setFixedHeight(self.size[1])
+      p.setPos(self.pos[0], self.pos[1])
+      p.getViewBox().setFixedWidth(self.size[0])
+      p.getViewBox().setFixedHeight(self.size[1])
 
-      return self.p
+      scene.addItem(p)
 
 
     def update(self, has_data):

@@ -1,4 +1,7 @@
-# PyGame Dashboard
+# pyqtgraph Dashboard
+
+This is a sensor data dashboard written by pyqtgraph,
+that supports fast visualization and interactive GUI component rearrangement.
 
 To run the demos:
 ```bash

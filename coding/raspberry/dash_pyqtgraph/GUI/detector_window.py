@@ -11,7 +11,7 @@ class DetectorWindow(Widget):
                          x_range=x_range, y_range=y_range)
 
 
-    def draw(self):
+    def draw(self, scene):
         p = pg.PlotItem(title=f"<span style='font-size:{FONT_SIZE}pt; color:{BLACK}'>{self.title}</span>")
         p.hideAxis("left")
         p.hideAxis("bottom")
@@ -25,7 +25,7 @@ class DetectorWindow(Widget):
         self.video_path = cv2.samples.findFile("./dash_pyqtgraph/GUI/tree.avi")
         self.capture = None
 
-        return p
+        scene.addItem(p)
 
 
     def update(self, has_data):

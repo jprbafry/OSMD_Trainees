@@ -10,32 +10,32 @@ class Slider(Widget):
                          x_range=x_range, y_range=y_range)
 
 
-    def draw(self):
+    def draw(self, scene):
       global FONT_SIZE, BLACK, RED, BLUE
-      self.p = pg.PlotItem(title=f"<span style='font-size:{FONT_SIZE}pt; color:{BLACK}'>Polar Rotation ({self.title})</span>")
+      p = pg.PlotItem(title=f"<span style='font-size:{FONT_SIZE}pt; color:{BLACK}'>Polar Rotation ({self.title})</span>")
 
       # Bbase line for the slider
-      self.p.plot([0, 180], [0.5, 0.5], pen=pg.mkPen(BLACK, width=2))
-      self.p.setAspectLocked(True)
-      self.p.setRange(xRange=self.x_range, yRange=self.y_range)
-      self.p.hideAxis('left')
-      self.p.hideAxis('bottom')
+      p.plot([0, 180], [0.5, 0.5], pen=pg.mkPen(BLACK, width=2))
+      p.setAspectLocked(True)
+      p.setRange(xRange=self.x_range, yRange=self.y_range)
+      p.hideAxis('left')
+      p.hideAxis('bottom')
 
       # moving red dot
       self.dot = pg.ScatterPlotItem([0], [0.5], size=15, brush=RED, pen=pg.mkPen(BLUE, width=2))
-      self.p.addItem(self.dot)
+      p.addItem(self.dot)
 
       # angle text
       self.angle_text = pg.TextItem("0°", anchor=(0, 0), color=BLACK)
       self.angle_text.setFont(QFont("Arial", FONT_SIZE))
       self.angle_text.setPos(70, 40)
-      self.p.addItem(self.angle_text)
+      p.addItem(self.angle_text)
 
-      self.p.setPos(self.pos[0], self.pos[1])
-      self.p.getViewBox().setFixedWidth(self.size[0])
-      self.p.getViewBox().setFixedHeight(self.size[1])
+      p.setPos(self.pos[0], self.pos[1])
+      p.getViewBox().setFixedWidth(self.size[0])
+      p.getViewBox().setFixedHeight(self.size[1])
 
-      return self.p
+      scene.addItem(p)
 
 
     def update(self, has_data):

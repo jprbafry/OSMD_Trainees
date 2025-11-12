@@ -27,7 +27,7 @@ class Widget:
     def initialize(self):
         pass
 
-    def draw(self):
+    def draw(self, scene):
         pass
 
     def update(self, has_data, new_data = None):

@@ -11,7 +11,7 @@ class Button(Widget):
                          x_range=x_range, y_range=y_range)
 
 
-    def draw(self):
+    def draw(self, scene):
         rotation = self.title[0]
         device = self.title[1]
         self.item_no = 0 if device == "Light Source" else 1
@@ -36,12 +36,9 @@ class Button(Widget):
         title_label.setFont(QFont("Arial", FONT_SIZE))
         title_label.setPos(self.pos[0] + 30, self.pos[1] - 20)
 
-        return self.button, title_label
-
-
-    def initialize(self, btn_proxy):
-        self.btn_proxy = btn_proxy
-        self.btn_proxy.setPos(self.pos[0], self.pos[1])
+        btn_proxy = scene.addWidget(self.button)
+        btn_proxy.setPos(self.pos[0], self.pos[1])
+        scene.addItem(title_label)
 
 
     def update(self, has_data):

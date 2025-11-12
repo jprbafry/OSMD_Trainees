@@ -40,16 +40,9 @@ sd = SensorDataPy([0,0,0,0],
                   [0,0],
                   0, 0.0,
                   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-update_functions = []
 
 # other global variables
 has_data = False
-pg.setConfigOptions(antialias=True)
-pg.setConfigOption('background', GUI.WHITE)   # white background
-pg.setConfigOption('foreground', GUI.BLACK)   # black axes/text
-app = pg.mkQApp("Dashboard")
-view = pg.GraphicsView()
-scene = pg.GraphicsScene()
 imu_queue_list = [deque([], GUI.Q_SIZE),
                   deque([], GUI.Q_SIZE),
                   deque([], GUI.Q_SIZE),
@@ -124,15 +117,12 @@ def recv_msgs(args):
         sm.stop()
 
 
-def draw_dashboard():
+def draw_dashboard(scene, view, app):
     """function to draw the whole dashboard"""
-    view.setScene(scene)
-    view.setWindowTitle("Dashboard")
-    view.resize(1260, 840)
-
     # allow ctrl + C to work while app.exec() is running
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     timer = QtCore.QTimer()
+    update_functions = []
 
     # polar rotations (sliders)
     anchor_x = 50
@@ -145,7 +135,7 @@ def draw_dashboard():
         slider = GUI.Slider(title, sd,
                             [anchor_x, anchor_y + (size_y + margin) * cnt], [size_x, size_y],
                             [-20, 200], [0, 1])
-        scene.addItem(slider.draw())
+        slider.draw(scene)
         update_functions.append(slider.update)
         cnt += 1
 
@@ -157,7 +147,7 @@ def draw_dashboard():
         knob = GUI.Knob(item, sd,
                         [anchor_x, anchor_y + (size_y + margin) * cnt], [size_x, size_y],
                         [-1.2, 1.2], [-1.2,1.5])
-        scene.addItem(knob.draw())
+        knob.draw(scene)
         update_functions.append(knob.update)
         cnt += 1
 
@@ -170,10 +160,7 @@ def draw_dashboard():
     for pair in list(itertools.product(["Polar", "Azimuthal"], ["Light Source", "Detector"])):
         button = GUI.Button(pair, sd, [anchor_x + cnt * margin, anchor_y], [],
                             [], [])
-        items = button.draw()
-        btn_proxy = scene.addWidget(items[0])
-        scene.addItem(items[1])
-        button.initialize(btn_proxy)
+        button.draw(scene)
         update_functions.append(button.update)
         cnt += 1
 
@@ -189,8 +176,8 @@ def draw_dashboard():
     gyroscope_plot = GUI.Sinusoidal("Gyroscope", imu_queue_list,
                                     [anchor_x + size_x + margin, anchor_y], [size_x, size_y],
                                     [], [-1, 1])
-    scene.addItem(accelerator_plot.draw())
-    scene.addItem(gyroscope_plot.draw())
+    accelerator_plot.draw(scene)
+    gyroscope_plot.draw(scene)
     update_functions.append(accelerator_plot.update)
     update_functions.append(gyroscope_plot.update)
 
@@ -206,26 +193,19 @@ def draw_dashboard():
     light_bar = GUI.ColorBar("Light", sd,
                              [anchor_x + margin, anchor_y], [size_x, size_y],
                              [0, 1], [0.8, 1.2])
-    item_list = []
-    item_list.extend(temp_bar.draw())
-    item_list.extend(light_bar.draw())
-    for item in item_list:
-        scene.addItem(item)
+    temp_bar.draw(scene)
+    light_bar.draw(scene)
     update_functions.append(temp_bar.update)
     update_functions.append(light_bar.update)
 
     # detector feed
     detector_window = GUI.DetectorWindow("Detector Feed", None, [820, 50], [400, 300], [], [])
-    scene.addItem(detector_window.draw())
+    detector_window.draw(scene)
     update_functions.append(detector_window.update)
 
     # debug info print to log window
     log_window = GUI.LogWindow("Logs", None, [820, 420], [400, 300], [], [])
-    frame, log_widget = log_window.draw()
-    scene.addItem(frame)
-    log_proxy = scene.addWidget(log_widget)
-    log_handler = GUI.QTextEditLogger(log_widget, log_buffer)
-    log_window.initialize(log_proxy, log_handler)
+    log_window.draw(scene, log_buffer)
 
     # connect update functions and start timer
     for fn in update_functions:
@@ -243,6 +223,18 @@ def draw_dashboard():
 
 def main():
     """main"""
+    # basic pyqtgraph setups
+    pg.setConfigOptions(antialias=True)
+    pg.setConfigOption('background', GUI.WHITE)   # white background
+    pg.setConfigOption('foreground', GUI.BLACK)   # black axes/text
+    app = pg.mkQApp("Dashboard")
+    view = pg.GraphicsView()
+    scene = pg.GraphicsScene()
+
+    view.setScene(scene)
+    view.setWindowTitle("Dashboard")
+    view.resize(1260, 840)
+
     try:
         args = parse_args()
 
@@ -255,7 +247,7 @@ def main():
             t.start()
 
         # draw in main thread
-        draw_dashboard()
+        draw_dashboard(scene, view, app)
 
     except KeyboardInterrupt:
         view.close()

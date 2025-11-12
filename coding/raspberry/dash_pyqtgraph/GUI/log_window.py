@@ -42,21 +42,21 @@ class LogWindow(Widget):
                          x_range=x_range, y_range=y_range)
 
 
-    def draw(self):
+    def draw(self, scene, log_buffer):
         # title
         title = pg.TextItem(self.title, anchor=(0.5, 1), color=BLACK)
         title.setFont(QFont("Arial", FONT_SIZE))
         title.setPos(self.pos[0] + self.size[0] / 2, self.pos[1] - 5)
 
         # frame
-        self.frame = pg.QtWidgets.QGraphicsRectItem(0, 0, self.size[0], self.size[1])
-        self.frame.setPos(self.pos[0], self.pos[1])
+        frame = pg.QtWidgets.QGraphicsRectItem(0, 0, self.size[0], self.size[1])
+        frame.setPos(self.pos[0], self.pos[1])
 
         # log widget
-        self.log_widget = QTextEdit()
-        self.log_widget.setReadOnly(True)
-        self.log_widget.setFixedSize(self.size[0], self.size[1])
-        self.log_widget.setStyleSheet(f"""
+        log_widget = QTextEdit()
+        log_widget.setReadOnly(True)
+        log_widget.setFixedSize(self.size[0], self.size[1])
+        log_widget.setStyleSheet(f"""
         QTextEdit {{
             background-color: {GREY};
             border: 1px solid {DARK_GREY};
@@ -66,11 +66,10 @@ class LogWindow(Widget):
         }}
         """)
 
-        return self.frame, self.log_widget
-
-
-    def initialize(self, log_proxy, log_handler):
-        log_proxy.setParentItem(self.frame)
+        scene.addItem(frame)
+        log_proxy = scene.addWidget(log_widget)
+        log_handler = QTextEditLogger(log_widget, log_buffer)
+        log_proxy.setParentItem(frame)
 
         # connect logger with the log widget
         log_handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s", "%H:%M:%S"))
