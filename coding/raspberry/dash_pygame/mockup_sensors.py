@@ -6,9 +6,7 @@ import os
 import argparse
 
 from communication.mux_tx_rx import SerialManager
-#from communication.protocol import SensorData, sensor_data_to_string
-
-from ComsModule import MessageManager
+from communication.pythonprotocol import MessageManager
 
 # Function to update motor encoders data
 def update_motor_encoders(mm: MessageManager, lock: threading.Lock, step=1, period_ms=20):
@@ -28,7 +26,8 @@ def update_motor_encoders(mm: MessageManager, lock: threading.Lock, step=1, peri
                 elif motor_encoders[i] <= 0:
                     motor_encoders[i] = 0
                     direction[i] = 1
-            mm.setMotorEncoder(motor_encoders)
+
+            mm.SetMotorEncoders(motor_encoders)
         time.sleep(period_ms / 1000)
 
 # Function to update Homing sensors data
@@ -36,25 +35,25 @@ def update_home_switches(mm: MessageManager, lock: threading.Lock, period_ms=40)
     home_switches = [1]*4
     while True:
         with lock:
-            sensors = mm.getSensors()
             for i in range(4):
-                home_switches[i] = (sensors.motor_encoders[i] < 5)
-            mm.setHomeSwitches(home_switches)
+                home_switches[i] = (mm.data['motor_encoders'][i] < 5)
+            mm.SetHomeSwitches(home_switches)
+
         time.sleep(period_ms / 1000)
 
 # Function to update Potentiometers data
 def update_potentiometers(mm: MessageManager, lock: threading.Lock, period_ms=40):
     while True:
         with lock:
-            sensors = mm.getSensors()
-            mm.setPotentioMeters([sensors.motor_encoders[2], sensors.motor_encoders[3]])
+            sensors = mm.data
+            mm.SetPotentiometers([sensors['motor_encoders'][2], sensors['motor_encoders'][3]])
         time.sleep(period_ms / 1000)
 
 # Function to update Reference Diode data
 def update_ref_diode(mm: MessageManager, lock: threading.Lock, period_ms=100):
     while True:
         with lock:
-            mm.setRefDiode(650 + random.randint(-20,20))
+            mm.SetRefDiode(650 + random.randint(-20,20))
         time.sleep(period_ms / 1000)
 
 # Function to update Temperature data
@@ -63,7 +62,7 @@ def update_temperature(mm: MessageManager, lock: threading.Lock, period_ms=200):
     while True:
         with lock:
             t = time.time() - start_time
-            mm.setTempSensor(16 + 8 * math.sin(2*math.pi * t / (24*60*60)))
+            mm.SetTempSensor(16 + 8 * math.sin(2*math.pi * t / (24*60*60)))
         time.sleep(period_ms / 1000)
 
 # Function to update IMU data
@@ -78,78 +77,8 @@ def update_imu(mm: MessageManager, lock: threading.Lock, period_ms=20):
             t = time.time() - start_time
             for i in range(6):
                 imu[i] = amplitude * math.sin(freqs[i]*t + phases[i])
-            mm.setImu(imu)
+            mm.SetIMU(imu)
         time.sleep(period_ms / 1000)
-
-'''
-# Function to update motor encoders data
-def update_motor_encoders(sd: SensorData, lock: threading.Lock, step=1, period_ms=20):
-    direction = [1]*4
-    while True:
-        with lock:
-            for i in range(4):
-                if i < 2:
-                    lim = 511
-                else:
-                    lim = 255
-                sd.motor_encoders[i] += direction[i]*step
-                if sd.motor_encoders[i] >= lim:
-                    sd.motor_encoders[i] = lim
-                    direction[i] = -1
-                elif sd.motor_encoders[i] <= 0:
-                    sd.motor_encoders[i] = 0
-                    direction[i] = 1
-        time.sleep(period_ms / 1000)
-
-# Function to update Homing sensors data
-def update_home_switches(sd: SensorData, lock: threading.Lock, period_ms=40):
-    while True:
-        with lock:
-            for i in range(4):
-                sd.home_switches[i] = (sd.motor_encoders[i] < 5)
-        time.sleep(period_ms / 1000)
-
-# Function to update Potentiometers data
-def update_potentiometers(sd: SensorData, lock: threading.Lock, period_ms=40):
-    while True:
-        with lock:
-            sd.potentiometers[0] = sd.motor_encoders[2]
-            sd.potentiometers[1] = sd.motor_encoders[3]
-        time.sleep(period_ms / 1000)
-
-# Function to update Reference Diode data
-def update_ref_diode(sd: SensorData, lock: threading.Lock, period_ms=100):
-    while True:
-        with lock:
-            sd.ref_diode = 650 + random.randint(-20,20)
-        time.sleep(period_ms / 1000)
-
-# Function to update Temperature data
-def update_temperature(sd: SensorData, lock: threading.Lock, period_ms=200):
-    start_time = time.time()
-    while True:
-        with lock:
-            t = time.time() - start_time
-            sd.temp_sensor = 16 + 8 * math.sin(2*math.pi * t / (24*60*60))
-        time.sleep(period_ms / 1000)
-
-# Function to update IMU data
-def update_imu(sd: SensorData, lock: threading.Lock, period_ms=20):
-    start_time = time.time()
-    phases = [0, math.pi/3, 2*math.pi/3, math.pi, 4*math.pi/3, 5*math.pi/3]
-    freqs = [random.uniform(1,5) for _ in range(6)]
-    amplitude = 1.0
-    while True:
-        with lock:
-            t = time.time() - start_time
-            for i in range(6):
-                sd.imu[i] = amplitude * math.sin(freqs[i]*t + phases[i])
-                
-        time.sleep(period_ms / 1000)
-'''
-
-
-
 
 # Argument Parsing
 def parse_args():
@@ -159,11 +88,6 @@ def parse_args():
     parser.add_argument("--baud", "-b", type=int, default=19200, help="Baud rate for the serial connection")
     parser.add_argument("--debug", "-d", action="store_true", help="Debug mode?")
     return parser.parse_args()
-
-
-
-
-
 
 # Main function
 if __name__ == "__main__":
@@ -175,30 +99,18 @@ if __name__ == "__main__":
                        baud=args.baud, debug=args.debug)
     sm.start()
 
-    # SensorData instance
-    #sd = SensorData()
-
-    # Initialization of Sensor Data
-    '''
-    sd.motor_encoders[:] = [511, 255, 127, 63]
-    sd.home_switches[:] = [False, False, False, False]
-    sd.potentiometers[:] = [512, 768]
-    sd.ref_diode = 900
-    sd.temp_sensor = 36.5
-    sd.imu[:] = [0.01, 0.02, 0.03, 0.1, 0.2, 0.3]
-    '''
 
     # Lock used to secure reading/writing from/to 'sd' (sensor data variable)
     lock = threading.Lock()
 
     # Start all sensor update threads
     threads = [
-        threading.Thread(target=update_motor_encoders, args=(sm.msgmanager,lock), daemon=True),
-        threading.Thread(target=update_home_switches, args=(sm.msgmanager,lock), daemon=True),
-        threading.Thread(target=update_potentiometers, args=(sm.msgmanager,lock), daemon=True),
-        threading.Thread(target=update_ref_diode, args=(sm.msgmanager,lock), daemon=True),
-        threading.Thread(target=update_temperature, args=(sm.msgmanager,lock), daemon=True),
-        threading.Thread(target=update_imu, args=(sm.msgmanager,lock), daemon=True),
+        threading.Thread(target=update_motor_encoders, args=(sm.msgManagerSend,lock), daemon=True),
+        threading.Thread(target=update_home_switches, args=(sm.msgManagerSend,lock), daemon=True),
+        threading.Thread(target=update_potentiometers, args=(sm.msgManagerSend,lock), daemon=True),
+        threading.Thread(target=update_ref_diode, args=(sm.msgManagerSend,lock), daemon=True),
+        threading.Thread(target=update_temperature, args=(sm.msgManagerSend,lock), daemon=True),
+        threading.Thread(target=update_imu, args=(sm.msgManagerSend,lock), daemon=True),
     ]
     for t in threads:
         t.start()
@@ -208,16 +120,17 @@ if __name__ == "__main__":
     try:
         while True:
             with lock:
-                #msg = sensor_data_to_string(sd)
 
-                len = sm.msgmanager.packPayload()
-                msg = sm.msgmanager.getPayload()[:len] 
+                sm.msgManagerSend.PackPayloadFromData()
+                msg = sm.msgManagerSend.payload[:sm.msgManagerSend.length]
+                
+                sm.send(0xFF) #Send start byte
+                sm.send(sm.msgManagerSend.mask) #Send mask byte
+                sm.send(sm.msgManagerSend.length) #Send length byte
+                sm.send(msg)
 
-            sm.send(0xAA) #Send start byte
+                sm.msgManagerSend.mask = 0
 
-            sm.send(msg)
-          
-            sm.send(0xBB) #Send end byte
 
             time.sleep(update_period / 1000)
     except KeyboardInterrupt:

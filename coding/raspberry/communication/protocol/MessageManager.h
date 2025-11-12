@@ -62,7 +62,8 @@ class MessageManager {
     uint8_t packPayload();
     void fillPayload(uint8_t);
     void loadData();
-    uint8_t[] getPayload();
+    uint8_t* getPayload();
+    void readDataFromString(const char* values[]);
 
     void setMotorEncoder(const uint16_t motor_encoders[4]);
     void setHomeSwitches(const bool home_switches[4]);
@@ -71,21 +72,23 @@ class MessageManager {
     void setTempSensor(const float temp_sensor);
     void setImu(const float imu[6]);
 
+    #pragma pack(push, 1)
     struct Sensors {
         uint16_t motor_encoders[4];
-        bool home_switches[4];
+        bool home_switches[4]; //Switched from bools --> uint8_t
         uint16_t potentiometers[2];
         uint16_t ref_diode;
         float temp_sensor;
         float imu[6];
     };
+    #pragma pack(pop)
 
     Sensors data;
 
     Sensors& getSensors();
 
-    private:
     uint8_t len = 0;
+    private:
 
     //enum ReadState { WAIT_FOR_START, WAIT_FOR_MASK, WAIT_FOR_LENGTH, WAIT_FOR_PAYLOAD };
     //ReadState readState = WAIT_FOR_START;     // REMOVE

@@ -1,3 +1,5 @@
+#include <iostream>
+#include <stdlib.h>
 #include "MessageManager.h"
 
 #include <pybind11/pybind11.h>
@@ -10,27 +12,27 @@ uint8_t MessageManager::packPayload() {
   memcpy(ptr, &mask, sizeof(mask)); ptr += sizeof(mask);
   
   if (mask & MOTOR_ENCODER_MASK) { 
-    memcpy(ptr, data.motor_encoders, sizeof(uint16_t) * 4); ptr += sizeof(uint16_t) * 4; 
+    memcpy(ptr, data.motor_encoders, sizeof(uint16_t) * 4); ptr += sizeof(uint16_t) * 4; len++; 
     mask &= ~MOTOR_ENCODER_MASK;            // Clear MOTOR_ENCODER_BIT after packing
   }
   if (mask & HOME_SWITCH_MASK) { 
-    memcpy(ptr, data.home_switches, sizeof(bool) * 4); ptr += sizeof(bool) * 4; 
+    memcpy(ptr, data.home_switches, sizeof(bool) * 4); ptr += sizeof(bool) * 4; len++; 
     mask &= ~HOME_SWITCH_MASK;              // Clear HOME_SWITCH_BIT after packing
   }
   if (mask & POTENTIOMETER_MASK) { 
-    memcpy(ptr, data.potentiometers, sizeof(uint16_t) * 2); ptr += sizeof(uint16_t) * 2; 
+    memcpy(ptr, data.potentiometers, sizeof(uint16_t) * 2); ptr += sizeof(uint16_t) * 2; len++; 
     mask &= ~POTENTIOMETER_MASK;            // Clear POTENTIOMETER_BIT after packing
   }
   if (mask & REF_DIODE_MASK) { 
-    memcpy(ptr, &data.ref_diode, sizeof(uint16_t)); ptr += sizeof(uint16_t); 
+    memcpy(ptr, &data.ref_diode, sizeof(uint16_t)); ptr += sizeof(uint16_t); len++; 
     mask &= ~REF_DIODE_MASK;                // Clear REF_DIODE_BIT after packing
   }
   if (mask & TEMP_SENSOR_MASK) { 
-    memcpy(ptr, &data.temp_sensor, sizeof(float)); ptr += sizeof(float); 
+    memcpy(ptr, &data.temp_sensor, sizeof(float)); ptr += sizeof(float); len++;
     mask &= ~TEMP_SENSOR_MASK;              // Clear TEMP_SENSOR_BIT after packing
   }
   if (mask & IMU_MASK) { 
-    memcpy(ptr, data.imu, sizeof(float) * 6); ptr += sizeof(float) * 6; 
+    memcpy(ptr, data.imu, sizeof(float) * 6); ptr += sizeof(float) * 6; len++;
     mask &= ~IMU_MASK;                      // Clear IMU_BIT after packing
   }
 
@@ -116,13 +118,55 @@ static size_t payloadIndex = 0;
 
 void MessageManager::fillPayload(uint8_t byte) {
 
-  if(byte == END_BYTE){
+  if (byte == END_BYTE){
     payloadIndex = 0;
     return;
   }
   
   payload[payloadIndex++] = byte;
+}
 
+void MessageManager::readDataFromString(const char* values[]) {
+
+    uint8_t valuesIndex = 0;
+
+    std::cout << "Mask: " << values[0] << std::endl;
+
+    mask = static_cast<uint8_t>(atoi(values[valuesIndex++]));
+
+    std::cout << "=========================MASK=========================: " << (int)mask << std::endl;
+
+    if (mask & MOTOR_ENCODER_MASK) {
+      for (int i = 0; i < 4; i++) {
+        data.motor_encoders[i] = static_cast<uint16_t>(atoi(values[valuesIndex++]));
+        std::cout << "Motor encoder[" << i << "]: " << data.motor_encoders[i] << std::endl;
+      }
+    }
+    if (mask & HOME_SWITCH_MASK){
+      for (size_t i = 0; i < 4; i++) {
+        data.home_switches[i] = static_cast<bool>(atoi(values[valuesIndex++]));
+        std::cout << "Home switch[" << i << "]: " << data.home_switches[i] << std::endl;
+      }
+    }
+    if (mask & POTENTIOMETER_MASK) {
+      for (int i = 0; i < 2; i++) {
+        data.potentiometers[i] = static_cast<uint16_t>(atoi(values[valuesIndex++]));
+        std::cout << "Potentiometer[" << i << "]: " << data.potentiometers[i] << std::endl;
+      }
+    } 
+    if (mask & REF_DIODE_MASK) {
+      data.ref_diode = static_cast<uint16_t>(atoi(values[valuesIndex++]));
+      std::cout << "Ref diode: " << data.ref_diode << std::endl;
+    }
+    if (mask & TEMP_SENSOR_MASK) {
+      data.temp_sensor = static_cast<float>(atof(values[valuesIndex++]));
+      std::cout << "Temp sensor: " << data.temp_sensor << std::endl;
+    }
+    if (mask & IMU_MASK){
+      for (size_t i = 0; i < 6; i++) {
+        data.imu[i] = static_cast<float>(atof(values[valuesIndex++]));
+      }
+    }
 }
 
 void MessageManager::setMotorEncoder(const uint16_t motor_encoders[4]) {
@@ -141,17 +185,24 @@ void MessageManager::setPotentiometers(const uint16_t potentiometers[2]) {
 }
 
 void MessageManager::setRefDiode(const uint16_t ref_diode) {
-  data.ref_diode = ref_diode;
+  //data.ref_diode = ref_diode;
+  std::memcpy(&data.ref_diode, &ref_diode, sizeof(uint16_t));
   mask |= REF_DIODE_MASK;
 }
 
 void MessageManager::setTempSensor(const float temp_sensor) {
-  data.temp_sensor = temp_sensor;
+  //data.temp_sensor = temp_sensor;
+  std::memcpy(&data.temp_sensor, &temp_sensor, sizeof(float));
   mask |= TEMP_SENSOR_MASK;
 }
 
 void MessageManager::setImu(const float imu[6]) {
   std::memcpy(data.imu, imu, sizeof(float) * 6);
+  /*std::cout << "IMU values in C++: ";
+  for (int i = 0; i < 6; i++) { 
+    std::cout << data.imu[i] << " ";
+  }
+  std::cout << std::endl;*/
   mask |= IMU_MASK;
 }
 
@@ -159,6 +210,6 @@ MessageManager::Sensors& MessageManager::getSensors() {
   return data;
 }
 
-uint8_t[] MessageManager::getPayload() {
+uint8_t* MessageManager::getPayload() {
     return payload;
 }

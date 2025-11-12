@@ -1,3 +1,4 @@
+#include <iostream>
 #include "MessageManager.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -39,7 +40,7 @@ PYBIND11_MODULE(ComsModule, mm){
                 tmp[i] = lst[i].cast<uint16_t>();
             m.setMotorEncoder(tmp);
     })
-    .def("setHomeSwitches", [](MessageManager &m, py::list lst){
+    .def("setHomeSwitches", [](MessageManager &m, py::list lst){ //Changed from bools to uint8_t
          if (py::len(lst) != 4) throw std::runtime_error("Expected 4 elements");
             bool tmp[4];
             for (int i=0; i<4; i++)
@@ -58,8 +59,10 @@ PYBIND11_MODULE(ComsModule, mm){
     .def("setImu", [](MessageManager &m, py::list lst) {
             if (lst.size() != 6) throw std::runtime_error("Expected 6 elements");
             float tmp[6];
-            for (int i=0; i<6; i++)
+            for (int i=0; i<6; i++){
                 tmp[i] = lst[i].cast<float>();
+                //std::cout << "IMU vales in binding: " << tmp[i] << std::endl;
+                }
             m.setImu(tmp);
     })
 
@@ -86,8 +89,26 @@ PYBIND11_MODULE(ComsModule, mm){
     .def_readwrite("mask", &MessageManager::mask)
     
 // OTHER FUNCTIONS
-    .def("getPayload", [](const MessageManager &m){
+    .def("getPayload", [](const MessageManager &m){ //--> Change const
+        //auto length = m.packPayload();
         return py::array_t<uint8_t>({64}, m.payload);
+    })
+
+    .def("readDataFromString", [](MessageManager &m, py::list lst) {
+
+        // allocate ON HEAP
+        auto temp_strings = std::make_shared<std::vector<std::string>>();
+        temp_strings->reserve(lst.size());
+
+        std::vector<const char*> temp_ptrs;
+        temp_ptrs.reserve(lst.size());
+
+        for (auto item : lst) {
+            temp_strings->push_back(item.cast<std::string>());
+            temp_ptrs.push_back(temp_strings->back().c_str());
+        }
+
+        m.readDataFromString(temp_ptrs.data());
     })
     .def("getSensors", &MessageManager::getSensors, py::return_value_policy::reference)
     .def("packPayload", &MessageManager::packPayload)
