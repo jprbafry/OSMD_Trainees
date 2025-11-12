@@ -4,6 +4,7 @@ import argparse
 from dash_pygame.GUI.panel import Panel
 from communication.mux_tx_rx import SerialManager
 from communication.protocol import string_to_sensor_data
+from camera.fake_picamera2 import Picamera2
 
 
 def parse_args():
@@ -17,13 +18,16 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
+    
+    picam2 = Picamera2()
+    picam2.start()
+
     panel = Panel(args.autodata)
 
     sm = SerialManager(simulate=args.simulate, name='A', port=args.port, baud=args.baud, debug=args.debug)
 
     def on_receive(msg):
         sd = string_to_sensor_data(msg)
-
 
         # Update knobs
         for i, knob in enumerate(panel.knobs):
@@ -46,5 +50,7 @@ if __name__ == "__main__":
 
     running = True
     while running:
+        frame = picam2.capture_array()
+        panel.cambox[0].update_cur_val(frame)
         panel.draw()
         panel.tick()
