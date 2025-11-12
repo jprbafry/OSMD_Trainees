@@ -3,6 +3,8 @@ import pyqtgraph as pg
 from PyQt6.QtGui import QFont
 
 from .widget import Widget, FONT_SIZE, BLACK, RED, BLUE
+from .demo import run_widget_demo
+from dash_pyqtgraph.common import SensorDataPy
 
 class Knob(Widget):
     """class to draw azimuthal rotation graphs"""
@@ -52,7 +54,7 @@ class Knob(Widget):
     def update(self, has_data):
         if has_data:
             raw_steps = int(self.data.motor_encoders[2]) if self.title == "Light Source" else int(self.data.motor_encoders[3])
-            angle = raw_steps / 512 * 360
+            angle = raw_steps / 256 * 360
             rad = np.deg2rad(angle)
             # clockwise, swap sin/cos and invert y
             x = np.sin(rad)
@@ -60,3 +62,21 @@ class Knob(Widget):
             self.dot.setData([x], [y])
             self.angle_text.setText(f"{angle:.2f}°")
             self.angle_text.setPos(0, 0)
+
+
+def main():
+    """Entry for standalone demo"""
+    sd = SensorDataPy()
+    sd.motor_encoders[2] = 180
+    anchor_x = 80
+    anchor_y = 80
+    size_x = 200
+    size_y = 150
+    knob = Knob("Light Source", sd,
+                    [anchor_x, anchor_y], [size_x, size_y],
+                    [-1.2, 1.2], [-1.2,1.5])
+    # update once
+    run_widget_demo(knob.draw, knob.update)
+
+if __name__ == "__main__":
+    main()

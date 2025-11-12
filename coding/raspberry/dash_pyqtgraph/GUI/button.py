@@ -3,6 +3,9 @@ from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QPushButton
 
 from .widget import Widget, FONT_SIZE, BLACK, WHITE, GREY, GREEN
+from .demo import run_widget_demo
+from dash_pyqtgraph.common import SensorDataPy
+
 
 class Button(Widget):
     """class to draw home switches"""
@@ -46,3 +49,19 @@ class Button(Widget):
             checked = self.data.home_switches[self.item_no]
             self.button.setChecked(checked)
             self.button.setText("ON" if checked else "OFF")
+
+
+def main():
+    """Entry for standalone demo"""
+    sd = SensorDataPy()
+    sd.home_switches[0] = 1
+    anchor_x = 80
+    anchor_y = 80
+    button = Button(("Polar", "Light Source"), sd,
+                    [anchor_x, anchor_y], [],
+                    [], [])
+    # update once
+    run_widget_demo(button.draw, button.update)
+
+if __name__ == "__main__":
+    main()

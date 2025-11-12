@@ -8,48 +8,41 @@ import itertools
 import logging
 import inspect
 from collections import deque
-from functools import partial
-from dataclasses import dataclass
 
 import pyqtgraph as pg
 from PyQt6 import QtCore
 
 from communication.mux_tx_rx import SerialManager
-from dash_pyqtgraph import GUI
-
+# from dash_pyqtgraph import GUI
+from dash_pyqtgraph.GUI.knob import Knob
+from dash_pyqtgraph.GUI.slider import Slider
+from dash_pyqtgraph.GUI.button import Button
+from dash_pyqtgraph.GUI.sinusoidal import Sinusoidal
+from dash_pyqtgraph.GUI.color_bar import ColorBar
+from dash_pyqtgraph.GUI.detector_window import DetectorWindow
+from dash_pyqtgraph.GUI.log_window import LogWindow
+from dash_pyqtgraph.GUI.widget import WHITE, BLACK, Q_SIZE, UPDATE_PERIOD, MAX_LOG_LEN
+from dash_pyqtgraph.common import SensorDataPy
 
 # setups for logging to console
-logger = logging.getLogger("Dashboard")
-logger.setLevel(logging.DEBUG)
+console_logger = logging.getLogger("Dashboard")
+console_logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
-logger.addHandler(ch)
-
-@dataclass
-class SensorDataPy:
-    """data class for Python (Raspberry) side"""
-    motor_encoders: list[int]
-    home_switches: list[bool]
-    potentiometers: list[int]
-    ref_diode: int
-    temp_sensor: float
-    imu: list[float]
+console_logger.addHandler(ch)
+log_window_logger = logging.getLogger("log_window")
 
 # sensor related variables
-sd = SensorDataPy([0,0,0,0],
-                  [False, False, False, False],
-                  [0,0],
-                  0, 0.0,
-                  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+sd = SensorDataPy()
 
 # other global variables
 has_data = False
-imu_queue_list = [deque([], GUI.Q_SIZE),
-                  deque([], GUI.Q_SIZE),
-                  deque([], GUI.Q_SIZE),
-                  deque([], GUI.Q_SIZE),
-                  deque([], GUI.Q_SIZE),
-                  deque([], GUI.Q_SIZE),]
-log_buffer = deque(maxlen = GUI.MAX_LOG_LEN)
+imu_queue_list = [deque([], Q_SIZE),
+                  deque([], Q_SIZE),
+                  deque([], Q_SIZE),
+                  deque([], Q_SIZE),
+                  deque([], Q_SIZE),
+                  deque([], Q_SIZE),]
+log_buffer = deque(maxlen = MAX_LOG_LEN)
 counter = 0
 
 
@@ -82,15 +75,14 @@ def extract_data(sd, recv_msg):
 
         counter += 1
         log = f"{counter} Received sensor data: {sd}"
-        logger.info(log)
-        log_buffer.append(log)
+        console_logger.info(log)
+        log_window_logger.info(log)
 
     else:
         has_data = False
         log = f"No sensor data received: {sd}"
-        logger.info(log)
-        log_buffer.append(log)
-
+        console_logger.info(log)
+        log_window_logger.info(log)
 
 def parse_args():
     """function to parse arguments, used in main()"""
@@ -111,7 +103,7 @@ def recv_msgs(args):
         while True:
             received_msg = sm.recv()
             extract_data(sd, received_msg)
-            time.sleep(GUI.UPDATE_PERIOD / 1000)
+            time.sleep(UPDATE_PERIOD / 1000)
     except KeyboardInterrupt:
         print(f"Ctrl+C pressed — stopping {args.name}")
         sm.stop()
@@ -132,9 +124,9 @@ def draw_dashboard(scene, view, app):
     margin = 50
     cnt = 0
     for title in ["Light Source", "Detector"]:
-        slider = GUI.Slider(title, sd,
-                            [anchor_x, anchor_y + (size_y + margin) * cnt], [size_x, size_y],
-                            [-20, 200], [0, 1])
+        slider = Slider(title, sd,
+                        [anchor_x, anchor_y + (size_y + margin) * cnt], [size_x, size_y],
+                        [-20, 200], [0, 1])
         slider.draw(scene)
         update_functions.append(slider.update)
         cnt += 1
@@ -144,9 +136,9 @@ def draw_dashboard(scene, view, app):
     anchor_y = 50
     cnt = 0
     for item in ["Light Source", "Detector"]:
-        knob = GUI.Knob(item, sd,
-                        [anchor_x, anchor_y + (size_y + margin) * cnt], [size_x, size_y],
-                        [-1.2, 1.2], [-1.2,1.5])
+        knob = Knob(item, sd,
+                    [anchor_x, anchor_y + (size_y + margin) * cnt], [size_x, size_y],
+                    [-1.2, 1.2], [-1.2,1.5])
         knob.draw(scene)
         update_functions.append(knob.update)
         cnt += 1
@@ -158,8 +150,8 @@ def draw_dashboard(scene, view, app):
     margin = 150
     # 4 combinations
     for pair in list(itertools.product(["Polar", "Azimuthal"], ["Light Source", "Detector"])):
-        button = GUI.Button(pair, sd, [anchor_x + cnt * margin, anchor_y], [],
-                            [], [])
+        button = Button(pair, sd, [anchor_x + cnt * margin, anchor_y], [],
+                        [], [])
         button.draw(scene)
         update_functions.append(button.update)
         cnt += 1
@@ -170,12 +162,12 @@ def draw_dashboard(scene, view, app):
     size_x = 280
     size_y = 150
     margin = 40
-    accelerator_plot = GUI.Sinusoidal("Accelerator", imu_queue_list,
-                                      [anchor_x, anchor_y], [size_x, size_y],
-                                      [], [-1, 1])
-    gyroscope_plot = GUI.Sinusoidal("Gyroscope", imu_queue_list,
-                                    [anchor_x + size_x + margin, anchor_y], [size_x, size_y],
-                                    [], [-1, 1])
+    accelerator_plot = Sinusoidal("Accelerator", imu_queue_list,
+                                  [anchor_x, anchor_y], [size_x, size_y],
+                                  [], [-1, 1])
+    gyroscope_plot = Sinusoidal("Gyroscope", imu_queue_list,
+                                [anchor_x + size_x + margin, anchor_y], [size_x, size_y],
+                                [], [-1, 1])
     accelerator_plot.draw(scene)
     gyroscope_plot.draw(scene)
     update_functions.append(accelerator_plot.update)
@@ -187,24 +179,32 @@ def draw_dashboard(scene, view, app):
     size_x = 40
     size_y = 650
     margin = 60
-    temp_bar = GUI.ColorBar("Temp", sd,
-                            [anchor_x, anchor_y], [size_x, size_y],
-                            [0, 1], [15, 17],)
-    light_bar = GUI.ColorBar("Light", sd,
-                             [anchor_x + margin, anchor_y], [size_x, size_y],
-                             [0, 1], [0.8, 1.2])
+    temp_bar = ColorBar("Temp", sd,
+                        [anchor_x, anchor_y], [size_x, size_y],
+                        [0, 1], [15, 17],)
+    light_bar = ColorBar("Light", sd,
+                         [anchor_x + margin, anchor_y], [size_x, size_y],
+                         [0, 1], [0.8, 1.2])
     temp_bar.draw(scene)
     light_bar.draw(scene)
     update_functions.append(temp_bar.update)
     update_functions.append(light_bar.update)
 
     # detector feed
-    detector_window = GUI.DetectorWindow("Detector Feed", None, [820, 50], [400, 300], [], [])
+    anchor_x = 820
+    anchor_y = 50
+    size_x = 400
+    size_y = 300
+    detector_window = DetectorWindow("Detector Feed", None, [anchor_x, anchor_y], [size_x, size_y], [], [])
     detector_window.draw(scene)
     update_functions.append(detector_window.update)
 
     # debug info print to log window
-    log_window = GUI.LogWindow("Logs", None, [820, 420], [400, 300], [], [])
+    anchor_x = 820
+    anchor_y = 420
+    size_x = 400
+    size_y = 300
+    log_window = LogWindow("Logs", None, [anchor_x, anchor_y], [size_x, size_y], [], [])
     log_window.draw(scene, log_buffer)
 
     # connect update functions and start timer
@@ -215,7 +215,7 @@ def draw_dashboard(scene, view, app):
         if n_params == 2:
             timer.timeout.connect(lambda fn=fn: fn(has_data, imu_queue_list))
 
-    timer.start(GUI.UPDATE_PERIOD)
+    timer.start(UPDATE_PERIOD)
 
     view.show()
     app.exec()
@@ -225,8 +225,8 @@ def main():
     """main"""
     # basic pyqtgraph setups
     pg.setConfigOptions(antialias=True)
-    pg.setConfigOption('background', GUI.WHITE)   # white background
-    pg.setConfigOption('foreground', GUI.BLACK)   # black axes/text
+    pg.setConfigOption('background', WHITE)   # white background
+    pg.setConfigOption('foreground', BLACK)   # black axes/text
     app = pg.mkQApp("Dashboard")
     view = pg.GraphicsView()
     scene = pg.GraphicsScene()

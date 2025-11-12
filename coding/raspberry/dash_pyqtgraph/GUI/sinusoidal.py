@@ -1,8 +1,9 @@
 import numpy as np
 import pyqtgraph as pg
-from PyQt6.QtGui import QFont
 
 from .widget import Widget, FONT_SIZE, BLACK, RED, BLUE, GREEN, Q_SIZE
+from .demo import run_widget_demo
+
 
 class Sinusoidal(Widget):
     """class to draw imu graphs (3 graphs in one plot)"""
@@ -42,3 +43,28 @@ class Sinusoidal(Widget):
 
             for i in range(0,3):
                 self.last_item[i] = self.p.plot(list(self.data[i + self.item_no])[i:self.window], pen=pg.mkPen(self.colors[i], width=2), name = self.names[i])
+
+
+def main():
+    """Entry for standalone demo"""
+    anchor_x = 50
+    anchor_y = 50
+    size_x = 280
+    size_y = 150
+    imu = [[], [], []]
+    x1 = np.linspace(-np.pi, np.pi, 101)
+    x2 = np.linspace(-0.5 * np.pi, 1.5 * np.pi, 101)
+    x3 = np.linspace(0, 2 * np.pi, 101)
+    imu[0] = np.sin(x1)
+    imu[1] = np.sin(x2)
+    imu[2] = np.sin(x3)
+
+    sine = Sinusoidal("Accelerator", imu,
+                    [anchor_x, anchor_y], [size_x, size_y],
+                    [], [-1, 1])
+
+    run_widget_demo(sine.draw, None)
+
+
+if __name__ == "__main__":
+    main()

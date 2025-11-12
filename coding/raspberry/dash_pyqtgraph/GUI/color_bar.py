@@ -5,6 +5,9 @@ from PyQt6.QtGui import QFont
 from PyQt6 import QtCore
 
 from .widget import Widget, FONT_SIZE, BLACK, WHITE
+from .demo import run_widget_demo
+from dash_pyqtgraph.common import SensorDataPy
+
 
 class ColorBar(Widget):
     """class to draw the color gradient bar"""
@@ -74,3 +77,23 @@ class ColorBar(Widget):
                     self.indicator.setPos(value)
                     self.border.setPos(value)
                     self.value_text.setText(f"{value * 100: .2f}%")
+
+
+def main():
+    """Entry for standalone demo"""
+    sd = SensorDataPy()
+    sd.temp_sensor = 16
+    anchor_x = 50
+    anchor_y = 50
+    size_x = 40
+    size_y = 200
+
+    temp_bar = ColorBar("Temp", sd,
+                    [anchor_x, anchor_y], [size_x, size_y],
+                    [0, 1], [15, 17])
+
+    run_widget_demo(temp_bar.draw, temp_bar.update)
+
+
+if __name__ == "__main__":
+    main()

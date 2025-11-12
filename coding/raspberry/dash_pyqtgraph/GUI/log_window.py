@@ -1,11 +1,13 @@
 import logging
+from collections import deque
 
 import pyqtgraph as pg
 from PyQt6 import QtCore
 from PyQt6.QtGui import QFont
 from PyQt6.QtWidgets import QTextEdit
 
-from .widget import Widget, FONT_SIZE, BLACK, GREY, DARK_GREY
+from .widget import Widget, FONT_SIZE, BLACK, GREY, DARK_GREY, MAX_LOG_LEN
+from .demo import run_widget_demo
 
 class QTextEditLogger(logging.Handler):
     """class for the logger piping the logs to the log widget"""
@@ -53,10 +55,10 @@ class LogWindow(Widget):
         frame.setPos(self.pos[0], self.pos[1])
 
         # log widget
-        log_widget = QTextEdit()
-        log_widget.setReadOnly(True)
-        log_widget.setFixedSize(self.size[0], self.size[1])
-        log_widget.setStyleSheet(f"""
+        self.log_widget = QTextEdit()
+        self.log_widget.setReadOnly(True)
+        self.log_widget.setFixedSize(self.size[0], self.size[1])
+        self.log_widget.setStyleSheet(f"""
         QTextEdit {{
             background-color: {GREY};
             border: 1px solid {DARK_GREY};
@@ -67,10 +69,32 @@ class LogWindow(Widget):
         """)
 
         scene.addItem(frame)
-        log_proxy = scene.addWidget(log_widget)
-        log_handler = QTextEditLogger(log_widget, log_buffer)
-        log_proxy.setParentItem(frame)
+        self.log_proxy = scene.addWidget(self.log_widget)
+        self.log_handler = QTextEditLogger(self.log_widget, log_buffer)
+        self.log_proxy.setParentItem(frame)
 
         # connect logger with the log widget
-        log_handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s", "%H:%M:%S"))
-        logging.getLogger().addHandler(log_handler)
+        self.log_handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s", "%H:%M:%S"))
+        self.logger = logging.getLogger("log_window")
+        self.logger.addHandler(self.log_handler)
+        # ensure INFOs aren not filtered
+        self.logger.setLevel(logging.DEBUG)
+        self.log_handler.setLevel(logging.DEBUG)
+
+
+
+
+def main():
+    """Entry for standalone demo"""
+    anchor_x = 20
+    anchor_y = 20
+    size_x = 320
+    size_y = 240
+    log_buffer = deque(maxlen = MAX_LOG_LEN)
+
+    log_window = LogWindow("Logs", None, [anchor_x, anchor_y], [size_x, size_y], [], [])
+    run_widget_demo(log_window.draw, None, log_buffer)
+
+
+if __name__ == "__main__":
+    main()

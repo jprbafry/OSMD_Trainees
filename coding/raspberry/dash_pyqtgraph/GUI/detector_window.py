@@ -3,6 +3,8 @@ import pyqtgraph as pg
 import cv2
 
 from .widget import Widget, FONT_SIZE, BLACK
+from .demo import run_widget_demo
+
 
 class DetectorWindow(Widget):
     """function to draw the feed from the camera/detector"""
@@ -42,3 +44,18 @@ class DetectorWindow(Widget):
         else:
             self.capture = None
 
+
+def main():
+    """Entry for standalone demo"""
+    anchor_x = 20
+    anchor_y = 20
+    size_x = 320
+    size_y = 240
+
+    detector_window = DetectorWindow("Detector Feed", None, [anchor_x, anchor_y], [size_x, size_y], [], [])
+
+    run_widget_demo(detector_window.draw, detector_window.update)
+
+
+if __name__ == "__main__":
+    main()

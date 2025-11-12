@@ -24,9 +24,6 @@ class Widget:
         self.x_range = x_range
         self.y_range = y_range
 
-    def initialize(self):
-        pass
-
     def draw(self, scene):
         pass
 
