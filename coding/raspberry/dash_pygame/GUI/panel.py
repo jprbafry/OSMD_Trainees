@@ -5,7 +5,6 @@ from dash_pygame.GUI import plotter
 from dash_pygame.GUI import bar
 from dash_pygame.GUI import knob
 from dash_pygame.GUI import slider
-from dash_pygame.GUI import cambox
 from dash_pygame.GUI import label
 from dash_pygame.GUI import logbox
 
