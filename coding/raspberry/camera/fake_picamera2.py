@@ -37,13 +37,14 @@ class FakePicamera2:
         R = 240
         T = 5
         amplitude = 0.7  # how much the ellipse stretches
+        step = 4
 
         while self._running:
-            for rot_deg in range(360):
+            for rot_deg in range(0, 360, step):
                 if not self._running:
                     return
                 angle = rot_deg
-                for ecc_step in range(360):
+                for ecc_step in range(0, 360, step):
                     if not self._running:
                         return
                     ecc_factor = abs(math.cos(math.radians(ecc_step)))
@@ -71,7 +72,7 @@ class FakePicamera2:
                     with self._lock:
                         self._current_frame = base_img
 
-                    time.sleep(0.001)  # 10 ms per frame (~100 fps),
+                    time.sleep(1/60)  # 10 ms per frame (~100 fps),
 
 
 
