@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import QTextEdit
 from .widget import Widget, FONT_SIZE, BLACK, GREY, DARK_GREY, MAX_LOG_LEN
 from .demo import run_widget_demo
 
+
 class QTextEditLogger(logging.Handler):
     """class for the logger piping the logs to the log widget"""
     def __init__(self, log_widget, log_buffer):

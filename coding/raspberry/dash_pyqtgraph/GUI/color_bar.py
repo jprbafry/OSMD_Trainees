@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pyqtgraph as pg
-from PyQt6.QtGui import QFont
 from PyQt6 import QtCore
 
 from .widget import Widget, FONT_SIZE, BLACK, WHITE

@@ -1,11 +1,8 @@
-# pylint: disable=line-too-long, import-error
-"""This module draws the real-time dashboard of sensor data. Run with 'python drawer_mockup.py -n A'."""
 import pyqtgraph as pg
-from PyQt6 import QtCore
 import logging
 
-
 from dash_pyqtgraph.GUI.widget import WHITE, BLACK
+
 
 def run_widget_demo(draw_callback, update_callback = None, extra_arg = None):
     logger = logging.getLogger("Demo")

@@ -6,6 +6,7 @@ from .widget import Widget, FONT_SIZE, BLACK, RED, BLUE
 from .demo import run_widget_demo
 from dash_pyqtgraph.common import SensorDataPy
 
+
 class Knob(Widget):
     """class to draw azimuthal rotation graphs"""
     def __init__(self, title, data, pos, size, x_range, y_range):
