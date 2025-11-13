@@ -4,6 +4,10 @@ import numpy as np
 from camera.fake_picamera2 import Picamera2
 from dash_pygame.GUI import widget  # base Widget class
 
+# Camera resolution (from sensor datasheet)
+CAM_RES_X = 1456
+CAM_RES_Y = 1088
+
 class CamBox(widget.Widget):
     """
     CamBox widget: displays a frame (np.array) inside the widget.
@@ -12,11 +16,11 @@ class CamBox(widget.Widget):
     def __init__(self, x, y, width, height, auto=False):
         super().__init__(x, y, width, height)
         # Initialize current frame with black image
-        if self.width/1456 > self.height/1088:
+        if self.width/CAM_RES_X > self.height/CAM_RES_Y:
             self.width = self.width
-            self.height = int(self.width*1088/1456)
+            self.height = int(self.width*CAM_RES_Y/CAM_RES_X)
         else:
-            self.width = int(self.height*1456/1088)
+            self.width = int(self.height*CAM_RES_X/CAM_RES_Y)
             self.height = self.height
         self.cur_val = np.zeros((self.height, self.width, 3), dtype=np.uint8)
         self.auto = auto
