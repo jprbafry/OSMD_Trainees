@@ -6,11 +6,12 @@ from dash_pygame.GUI import bar
 from dash_pygame.GUI import knob
 from dash_pygame.GUI import slider
 from dash_pygame.GUI import cambox
-from dash_pygame.GUI import label
 from dash_pygame.GUI import logbox
+from dash_pygame.GUI import label
 
 class Panel:
     def __init__(self, auto=False):
+
         # Initialize Pygame
         pygame.init()
         self.screen = pygame.display.set_mode((1120, 600))
@@ -52,8 +53,12 @@ class Panel:
         # CamBox
         self.cambox = [cambox.CamBox(x=670, y=50, width=300, height=300, auto=self.auto)]
 
+        # LogBox
+        self.logbox = [logbox.LogBox(670, 400, 400, 150, self.font, max_logs=100)]
+
+
         # All widgets together for easy drawing
-        self.widgets = self.knobs + self.sliders + self.plotters + self.bars + self.cambox
+        self.widgets = self.knobs + self.sliders + self.plotters + self.bars + self.cambox + self.logbox
 
     def draw(self):
         """Draw all widgets"""
@@ -61,6 +66,17 @@ class Panel:
         for w in self.widgets:
             w.draw(self.screen)
         pygame.display.flip()
+
+    def handle_events(self):        
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                
+            # Pass event to widgets if they have handle_event
+            for w in self.widgets:
+                if hasattr(w, "handle_event"):
+                    w.handle_event(event)
 
     def tick(self, fps=60):
         """Control frame rate"""

@@ -15,13 +15,16 @@ class CamBox(widget.Widget):
     """
     def __init__(self, x, y, width, height, auto=False):
         super().__init__(x, y, width, height)
-        # Initialize current frame with black image
+
+        # Adapt Width/Height to keep aspect ratio (based on cam resolution)
         if self.width/CAM_RES_X > self.height/CAM_RES_Y:
             self.width = self.width
             self.height = int(self.width*CAM_RES_Y/CAM_RES_X)
         else:
             self.width = int(self.height*CAM_RES_X/CAM_RES_Y)
             self.height = self.height
+
+        # Initialize current frame with black image
         self.cur_val = np.zeros((self.height, self.width, 3), dtype=np.uint8)
         self.auto = auto
         self.lock = threading.Lock()

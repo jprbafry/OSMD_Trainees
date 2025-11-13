@@ -21,7 +21,20 @@ def run_widget_demo(widget_factory, window_size=(300, 300), title="Widget System
 
     running = True
     while running:
-        screen.fill(widget.color_background)
+        # Fill background
+        screen.fill(widget.Widget.color_background if hasattr(widget.Widget, "color_background") else (30, 30, 30))
+
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                
+            # Pass event to widgets if they have handle_event
+            for w in widgets:
+                if hasattr(w, "handle_event"):
+                    w.handle_event(event)
+
+        # Draw all widgets
         for w in widgets:
             w.draw(screen)
 
@@ -29,3 +42,4 @@ def run_widget_demo(widget_factory, window_size=(300, 300), title="Widget System
         clock.tick(60)
 
     pygame.quit()
+

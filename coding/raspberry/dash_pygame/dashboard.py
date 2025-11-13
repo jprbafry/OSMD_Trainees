@@ -44,13 +44,19 @@ if __name__ == "__main__":
         # Update plotters
         for i, plotter in enumerate(panel.plotters):
             plotter.update_cur_val(sd.imu[i])
+        
 
     sm.on_receive = on_receive
     sm.start()
 
     running = True
+    counter = 0
     while running:
         frame = picam2.capture_array()
         panel.cambox[0].update_cur_val(frame)
+        if counter%100 == 0:
+            panel.logbox[0].update_cur_val(f"Counter: {counter}")
+        counter += 1
+        panel.handle_events()
         panel.draw()
         panel.tick()
