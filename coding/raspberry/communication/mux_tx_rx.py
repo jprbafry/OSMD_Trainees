@@ -5,6 +5,7 @@ import logging
 import numpy as np
 
 from communication.pythonprotocol.MessageManager import MessageManager
+from communication.ComsModule import MessageManager as ComsMessageManager
 
 
 try:
@@ -40,10 +41,16 @@ class FileBackedFakeSerial:
             open(f, 'a').close()
 
     def write(self, data: bytes):
+       # print(f"Writing in TX: {data}")
         with open(self.write_file, 'a', encoding='utf-8') as f:
             if(type(data) == int):
                 f.write(str(data))
+            # C++ VERSION
+            #elif(type(data) == np.ndarray):
+
+            # PYTHON VERSION
             elif(type(data) == bytearray):
+                
                 for d in data:
                     f.write(str(d) + " ")
             f.write("\n")
@@ -58,6 +65,8 @@ class FileBackedFakeSerial:
                 f.seek(0)
                 f.writelines(lines[1:])
                 f.truncate()
+
+        #print(f"Reading line: {line}")
         return line.encode('ascii')
 
     def flush(self):
@@ -69,7 +78,7 @@ class FileBackedFakeSerial:
 # Class to handle Tx/Rx data over real or simulated serial
 class SerialManager:
 
-    def __init__(self, port="/dev/ttyACM0", baud=38400, simulate=True, name=None, debug=False):
+    def __init__(self, port="/dev/ttyACM0", baud=115200, simulate=True, name=None, debug=False): #Change to COM8 as serial port from /dev/ttyACM0
         self.running = threading.Event()
         self.send_queue = []
         self.lock = threading.Lock()
@@ -103,12 +112,19 @@ class SerialManager:
                 self.ser = FileBackedFakeSerial(name or 'A')
                 self.simulate = True
         try:
-            self.msgManagerReceive = MessageManager(self)
-            self.msgManagerSend = MessageManager(self)
+            self.msgManagerReceive = MessageManager(self.ser)
+            #self.msgManagerSend = MessageManager(self.ser)
+
         except Exception as e:
             logger.error(f"Error initializing MessageManager: {e}")
 
-        self.tx_thread = threading.Thread(target=self.tx_loop, daemon=True)
+        try:    
+            self.comsMsgManagerReceive = ComsMessageManager()
+            self.comsMsgManagerSend = ComsMessageManager()
+        except Exception as e:
+            logger.error(f"Error initializing Coms MessageManager: {e}")    
+
+        #self.tx_thread = threading.Thread(target=self.tx_loop, daemon=True)
         self.rx_thread = threading.Thread(target=self.rx_loop, daemon=True)
 
     # Transmission Thread (function)
@@ -128,6 +144,10 @@ class SerialManager:
     def rx_loop(self):
         while self.running.is_set():
             try:
+                self.msgManagerReceive.ReadMessage()
+                self.on_receive()
+                # SIMULATION
+                '''
                 try:
                     line = self.ser.readline().decode('ascii', errors='ignore').split()
                 except Exception as e:
@@ -136,20 +156,28 @@ class SerialManager:
                 
                 if line:
                     if self.on_receive:
-                        self.msgManagerReceive.readMessageSimulation(line)
                         try:
+                            # C++ VERSION
+                            # self.comsMsgManagerReceive.readMessageSimulation(line)
+
+                            # PYTHON VERSION
+                            self.msgManagerReceive.readMessageSimulation(line)
+
+                            line = self.ser.read(1)
+                        
                             self.on_receive()
                         except Exception as e:
                             print(f"Error in on_receive callback: {e}")
-
+                '''
             except Exception as e:
-                logger.error(f"RX error: {e}")
+                #logger.error(f"RX error: {e}")
+                pass
             time.sleep(0.005)
         logger.debug("RX thread stopped")
         
     def start(self):
         self.running.set()
-        self.tx_thread.start()
+        #self.tx_thread.start()
         self.rx_thread.start()
         logger.info("SerialManager started")
 

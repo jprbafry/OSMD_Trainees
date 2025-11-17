@@ -76,49 +76,73 @@ class MessageManager:
 
     def LoadDataFromPayload(self):
         ptr = 0
+
+        #print(f"Payload: {self.payload}")
         
         if self.mask & MOTOR_ENCODER_MASK:
             self.data['motor_encoders'] = list(struct.unpack_from('<4H', self.payload, ptr))
             ptr += 4 * 2
 
+         #   print("Updating motor encoderse")
+
         if self.mask & HOME_SWITCH_MASK:
             self.data['home_switches'] = list(struct.unpack_from('<4B', self.payload, ptr))
             ptr += 4 * 1
+
+          #  print("Updating home switches")
 
         if self.mask & POTENTIOMETER_MASK:
             self.data['potentiometers'] = list(struct.unpack_from('<2H', self.payload, ptr))
             ptr += 2 * 2
 
+           # print("Updating potentiometers")
+
         if self.mask & REF_DIODE_MASK:
             (self.data['ref_diode']) = struct.unpack_from('<H', self.payload, ptr)
             ptr += 2
+
+            #print("Updating ref diode")
 
         if self.mask & TEMP_SENSOR_MASK:
             (self.data['temp_sensor']) = struct.unpack_from('<f', self.payload, ptr)
             ptr += 4
 
+            #print("Updating temp sensor")
+
         if self.mask & IMU_MASK:
             self.data['imu'] = list(struct.unpack_from('<6f', self.payload, ptr))
             ptr += 6 * 4
 
+            #print("Updating imus")
+
     def ReadMessage(self):
         b = self.serial.read(1)
-
+        
         if not b:
             return  
 
         b = b[0]  
 
+        #print(f"Read byte: {b}")
+
         if self.readState == WAIT_FOR_START:
             if b == START_BYTE:
+         #       print("Found START_BYTE")
                 self.readState = WAIT_FOR_MASK
 
         elif self.readState == WAIT_FOR_MASK:
+            
             self.mask = b
+
+          #  print(f"Mask from message: {self.mask}")
+
             self.readState = WAIT_FOR_LENGTH
 
         elif self.readState == WAIT_FOR_LENGTH:
             self.length = b
+
+           # print(f"Length from message: {self.length}")
+
             self.payload_index = 0
             self.readState = WAIT_FOR_PAYLOAD
 
@@ -127,38 +151,34 @@ class MessageManager:
             self.payload_index += 1
 
             if self.payload_index >= self.length:
+            #    print("Found a complete message")
                 self.LoadDataFromPayload()
                 self.readState = WAIT_FOR_START
 
     def readMessageSimulation(self, line):
-        byte_array = bytearray()
-        
-        if len(line) == 1:
-            value = int(line[0])
-        elif len(line) > 1:
-            for v in line:
-                v = int(v) #to ints
-                v = v & 0xFF #to bytes
-                byte_array.append(v)
-        else:
+        if len(line) == 0:
             return
 
         if self.readState == WAIT_FOR_START:
+            value = int(line[0])
             if value == START_BYTE:
                 self.readState = WAIT_FOR_MASK
 
         elif self.readState == WAIT_FOR_MASK:
+            value = int(line[0])
             self.mask = value
             self.readState = WAIT_FOR_LENGTH
 
         elif self.readState == WAIT_FOR_LENGTH:
+            value = int(line[0])
             self.length = value
             self.payload_index = 0
             self.readState = WAIT_FOR_PAYLOAD
 
         elif self.readState == WAIT_FOR_PAYLOAD:
-            for byte in byte_array:
-                self.payload[self.payload_index] = byte
+            for value in line:
+                value = int(value)
+                self.payload[self.payload_index] = value
                 self.payload_index += 1
 
                 if self.payload_index >= self.length:   # full packet received
