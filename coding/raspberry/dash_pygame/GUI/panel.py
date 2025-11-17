@@ -60,13 +60,15 @@ class Panel:
         c_b2 = [(255,255,255), (255, 165, 0)]
         self.bars = [
         bar.Bar(650, 80, 30, 600, 0, 100, c_b1, "", self.font, auto=self.auto),
-        bar.Bar(750, 80, 30, 600, 0, 1024, c_b2, "", self.font, auto=self.auto),
+        bar.Bar(775, 80, 30, 600, 0, 1024, c_b2, "", self.font, auto=self.auto),
         ]
 
         #Logbox
         self.logbox = logbox.LogBox(900, 500, 500, 200, self.font_small, max_lines=8, auto=self.auto)
         self.logbox.add_line("System initialized...")
         self.logbox.add_line("Dashboard started.")
+        self._last_log_message = None
+
 
         #General labels
         self.labels = []
@@ -80,7 +82,7 @@ class Panel:
 
         #Label for Bart 2 (light intensity)
         b2 = self.bars[1]
-        label_x = b2.x + b2.width // 2 + 15
+        label_x = b2.x + b2.width // 2 + 5
         label_y = b2.y - 40
         lbl2 = label.Label("Light Intensity", label_x, label_y, self.font, center=True)
         self.labels.append(lbl2)
@@ -116,14 +118,14 @@ class Panel:
         #Label for accelerometer
         p_left = self.plotters[0]
         label_x = p_left.x + p_left.width // 2
-        label_y = p_left.y - 40
+        label_y = p_left.y - 70
         lbl_p_left = label.Label("Accelerometer", label_x, label_y, self.font, center=True)
         self.labels.append(lbl_p_left)
 
         #Label for gyro
         p_right = self.plotters[3]
         label_x = p_right.x + p_right.width // 2
-        label_y = p_right.y - 40
+        label_y = p_right.y - 70
         lbl_p_right = label.Label("Gyro", label_x, label_y, self.font, center=True)
         self.labels.append(lbl_p_right)
 
@@ -141,6 +143,88 @@ class Panel:
         self.screen.fill(widget.color_background)
         for w in self.widgets:
             w.draw(self.screen)
+
+        #Printing value for Bars
+        for i, b in enumerate(self.bars):
+            if isinstance(b.cur_val, (int, float)):
+                #Bar 0 = Temperature
+                if i == 0:
+                    value = f"{int(b.cur_val)}°C"
+                else:
+                    value = str(int(b.cur_val))
+            else:
+                value = "—"
+
+            text = self.font.render(value, True, (255, 255, 255))
+            rect = text.get_rect(center=(b.x + b.width // 2, b.y - 15))
+            self.screen.blit(text, rect)
+
+        #Printing value for Knobs
+        for k in self.knobs:
+            if isinstance(k.cur_val, (int, float)):
+                value = f"{int(k.cur_val)}°"
+            else:
+                value = "—"
+
+            text = self.font.render(value, True, (255, 255, 255))
+            rect = text.get_rect(center=(k.x, k.y - 70))   # adjust offset if needed
+            self.screen.blit(text, rect)
+
+        #Printing value for Sliders
+        for s in self.sliders:
+            if isinstance(s.cur_val, (int, float)):
+                value = f"{int(s.cur_val)}°"
+            else:
+                value = "—"
+
+            text = self.font.render(value, True, (255, 255, 255))
+            rect = text.get_rect(center=(s.x + s.width // 2, s.y -20))
+            self.screen.blit(text, rect)
+
+        #Printing value for Accelerometer
+        p = self.plotters[0]   # accelerometer plotter
+        names = ["X", "Y", "Z"]
+
+        base_x = p.x + p.width // 2
+        base_y = p.y- 50
+        gap = 20 #Gap between the X,Y & Z
+
+        for i in range(3):
+            v = self.plotters[i].cur_val
+            print("accelerometer: ",i,v)
+
+            value = (
+                f"{names[i]}: {v:.2f}"
+                if isinstance(v, (int, float))
+                else f"{names[i]}: —"
+            )
+
+            text = self.font.render(value, True, (255, 255, 255))
+            rect = text.get_rect(center=(base_x, base_y + i * gap))
+            self.screen.blit(text, rect)
+
+        #Printing value for Gyro
+        p = self.plotters[3]   # gyro plotter
+        names = ["X", "Y", "Z"]
+
+        base_x = p.x + p.width // 2
+        base_y = p.y - 50
+        gap = 20 #Gap between the X, Y & Z
+
+        for i in range(3):
+            v = self.plotters[i + 3].cur_val #uses plotters 3,4 & 5
+
+            value = (
+                f"{names[i]}: {v:.2f}"
+                if isinstance(v, (int, float))
+                else f"{names[i]}: —"
+            )
+
+            text = self.font.render(value, True, (255, 255, 255))
+            rect = text.get_rect(center=(base_x, base_y + i * gap))
+            self.screen.blit(text, rect)
+
+
         pygame.display.flip()
 
     def tick(self, fps=60):
