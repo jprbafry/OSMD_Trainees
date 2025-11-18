@@ -47,7 +47,6 @@ class Panel:
             indicator.Indicator(self.sliders[1].x -6, self.sliders[1].y -7,14), #right slider
         ]
 
-
         #Plotters
         self.plotters = [
         plotter.Plotter(50, 400, 200, 100, 1, -1, (255,0,0), self.font, auto=self.auto),
@@ -75,11 +74,8 @@ class Panel:
         #Camera
         self.picam2 = Picamera2()
         self.picam2.start()
-
         self.camera_widget = CameraWidget(1020, 100, 250, 200, self.picam2, auto=auto)
         
-
-
         #General labels
         self.labels = []
 
@@ -129,14 +125,14 @@ class Panel:
         p_left = self.plotters[0]
         label_x = p_left.x + p_left.width // 2
         label_y = p_left.y - 70
-        lbl_p_left = label.Label("Accelerometer", label_x, label_y, self.font, center=True)
+        lbl_p_left = label.Label("Accelerometer (m/s2)", label_x, label_y, self.font, center=True)
         self.labels.append(lbl_p_left)
 
         #Label for gyro
         p_right = self.plotters[3]
         label_x = p_right.x + p_right.width // 2
         label_y = p_right.y - 70
-        lbl_p_right = label.Label("Gyro", label_x, label_y, self.font, center=True)
+        lbl_p_right = label.Label("Gyro (°/s)", label_x, label_y, self.font, center=True)
         self.labels.append(lbl_p_right)
 
         #Label for LogBox
@@ -144,6 +140,12 @@ class Panel:
         label_y = self.logbox.y - 25
         lbl_log = label.Label("System Log", label_x, label_y, self.font, center=True)
         self.labels.append(lbl_log)
+
+        #Label for the Camera
+        label_x = self.camera_widget.x + self.camera_widget.width // 2 
+        label_y = self.camera_widget.y - 25
+        lbl_cam = label.Label("Camera Feed", label_x, label_y, self.font, center=True)
+        self.labels.append(lbl_cam)
 
         # All widgets together for easy drawing
         self.widgets = self.knobs + self.sliders + self.plotters + self.bars + self.knobs_indicators + self.sliders_indicators + self.labels + [self.logbox, self.camera_widget]
@@ -159,9 +161,9 @@ class Panel:
             if isinstance(b.cur_val, (int, float)):
                 #Bar 0 = Temperature
                 if i == 0:
-                    value = f"{int(b.cur_val)}°C"
+                    value = f"{int(b.cur_val)}°C" #Bar 1 = Temperature
                 else:
-                    value = str(int(b.cur_val))
+                    value = str(int(b.cur_val)) + " lm" #Bar 2 = Light Intensity
             else:
                 value = "—"
 
