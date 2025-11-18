@@ -65,7 +65,3 @@ if __name__ == "__main__":
 
 
     demo.run_widget_demo(knob_factory)
-
-
-
-    
