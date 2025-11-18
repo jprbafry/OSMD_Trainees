@@ -26,8 +26,8 @@ class Panel:
 
         #Knobs
         self.knobs = [
-            knob.Knob(150, 115, 50, self.font, 0, 360, auto=self.auto),
-            knob.Knob(400, 115, 50, self.font, 0, 360, auto=self.auto),
+            knob.Knob(150, 130, 50, self.font, 0, 360, auto=self.auto),
+            knob.Knob(400, 130, 50, self.font, 0, 360, auto=self.auto),
         ]
         #Knobs Home Indicator
         self.knobs_indicators = [
@@ -37,8 +37,8 @@ class Panel:
 
         #Sliders
         self.sliders = [
-            slider.Slider(70, 275, 150, 0, 0, 180, self.font, auto=self.auto),
-            slider.Slider(330, 275, 150, 0, 0, 180, self.font, auto=self.auto),
+            slider.Slider(70, 250, 110, 0, 0, 180, self.font, auto=self.auto),
+            slider.Slider(350, 250, 110, 0, 0, 180, self.font, auto=self.auto),
         ]
 
         #Sliders Home Indicator
@@ -66,7 +66,7 @@ class Panel:
         ]
 
         #Logbox
-        self.logbox = logbox.LogBox(900, 450, 500, 200, self.font_small, max_lines=8, auto=self.auto)
+        self.logbox = logbox.LogBox(900, 490, 500, 200, self.font_small, max_lines=8, auto=self.auto)
         self.logbox.add_line("System initialized...")
         self.logbox.add_line("Dashboard started.")
         self._last_log_message = None
@@ -74,7 +74,7 @@ class Panel:
         #Camera
         self.picam2 = Picamera2()
         self.picam2.start()
-        self.camera_widget = CameraWidget(1020, 100, 250, 200, self.picam2, auto=auto)
+        self.camera_widget = CameraWidget(970, 100, 350, 270, self.picam2, auto=auto)
         
         #General labels
         self.labels = []
@@ -93,33 +93,50 @@ class Panel:
         lbl2 = label.Label("Light Intensity", label_x, label_y, self.font, center=True)
         self.labels.append(lbl2)
 
+        #Label between Knob 1 & Knob 2 
+        k1 = self.knobs[0]
+        k2 = self.knobs[1]
+        label_x = (k1.cx + k2.cx) // 2
+        label_y = k1.cy - k1.radius - 5 + 50
+        lbl_az = label.Label("Azimuthal", label_x, label_y, self.font, center=True)
+        self.labels.append(lbl_az)
+
         #Label for Knob 1
         k1 = self.knobs[0]
         label_x = k1.cx 
         label_y = k1.cy -k1.radius - 40
-        lbl1 = label.Label("Azimuthal", label_x, label_y, self.font, center=True)
+        lbl1 = label.Label("Light Source", label_x, label_y, self.font, center=True)
         self.labels.append(lbl1)
 
         #Label for Knob 2
         k2 = self.knobs[1]
         label_x = k2.cx 
         label_y = k2.cy -k2.radius - 40
-        lbl2 = label.Label("Azimuthal", label_x, label_y, self.font, center=True)
+        lbl2 = label.Label("Detector", label_x, label_y, self.font, center=True)
         self.labels.append(lbl2)
 
-        #Label for slider 1
+        # Label Slider 1 & Slider 2 (Polar)
         s1 = self.sliders[0]
-        label_x = s1.x + s1.width // 2
-        label_y = s1.y - 40
-        lbl_s1 = label.Label("Polar", label_x, label_y, self.font, center=True)
-        self.labels.append(lbl_s1)
-
-        #Label for slider 2
         s2 = self.sliders[1]
-        label_x = s2.x + s2.width // 2
-        label_y = s2.y - 40
-        lbl_s2 = label.Label("Polar", label_x, label_y, self.font, center=True)
-        self.labels.append(lbl_s2)
+        label_x = ((s1.x + s1.width // 2) + (s2.x + s2.width // 2)) // 2
+        label_y = s1.y - 5  
+        lbl_polar = label.Label("Polar", label_x, label_y, self.font, center=True)
+        self.labels.append(lbl_polar
+        )
+
+        # #Label for slider 1
+        # s1 = self.sliders[0]
+        # label_x = s1.x + s1.width // 2
+        # label_y = s1.y - 40
+        # lbl_s1 = label.Label("", label_x, label_y, self.font, center=True)
+        # self.labels.append(lbl_s1)
+
+        # #Label for slider 2
+        # s2 = self.sliders[1]
+        # label_x = s2.x + s2.width // 2
+        # label_y = s2.y - 40
+        # lbl_s2 = label.Label("", label_x, label_y, self.font, center=True)
+        # self.labels.append(lbl_s2)
 
         #Label for accelerometer
         p_left = self.plotters[0]

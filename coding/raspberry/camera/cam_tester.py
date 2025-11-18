@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 # Initialize pygame
-window_size = 400
+window_size = 1000
 screen = pygame.display.set_mode((window_size, window_size))
 pygame.display.set_caption("FakeCam Pygame")
 
