@@ -28,10 +28,6 @@ def update_motor_encoders(mm: MessageManager, lock: threading.Lock, step=1, peri
                 elif motor_encoders[i] <= 0:
                     motor_encoders[i] = 0
                     direction[i] = 1
-            # C++ VERSION
-            # mm.setMotorEncoders(motor_encoders)
-
-            # PYTHON VERSION
             mm.SetMotorEncoders(motor_encoders)
         time.sleep(period_ms / 1000)
 
@@ -40,14 +36,6 @@ def update_home_switches(mm: MessageManager, lock: threading.Lock, period_ms=40)
     home_switches = [1]*4
     while True:
         with lock:
-            # C++ VERSION
-            '''
-            sensors = mm.getSensors()
-            for i in range(4):
-                home_switches[i] = (sensors.motor_encoders[i] < 5)
-            mm.setHomeSwitches(home_switches)
-            '''
-            #PYTHON VERSION
             sensors = mm.data
             for i in range(4):
                 home_switches[i] = (sensors['motor_encoders'][i] < 5)
@@ -59,12 +47,6 @@ def update_home_switches(mm: MessageManager, lock: threading.Lock, period_ms=40)
 def update_potentiometers(mm: MessageManager, lock: threading.Lock, period_ms=40):
     while True:
         with lock:
-            # C++ VERSION
-            '''
-            sensors = mm.getSensors()
-            mm.setPotentiometers([sensors.motor_encoders[2], sensors.motor_encoders[3]])
-            '''
-            #PYTHON VERSION
             sensors = mm.data
             mm.SetPotentiometers([sensors['motor_encoders'][2], sensors['motor_encoders'][3]])
         time.sleep(period_ms / 1000)
@@ -73,10 +55,6 @@ def update_potentiometers(mm: MessageManager, lock: threading.Lock, period_ms=40
 def update_ref_diode(mm: MessageManager, lock: threading.Lock, period_ms=100):
     while True:
         with lock:
-            #C++ VERSION
-            #mm.setRefDiode(650 + random.randint(-20,20))
-
-            #PYTHON VERSION
             mm.SetRefDiode(650 + random.randint(-20,20))
         time.sleep(period_ms / 1000)
 
@@ -86,10 +64,6 @@ def update_temperature(mm: MessageManager, lock: threading.Lock, period_ms=200):
     while True:
         with lock:
             t = time.time() - start_time
-            #C++ VERSION
-            #mm.setTempSensor(16 + 8 * math.sin(2*math.pi * t / (24*60*60)))
-
-            #PYTHON VERSION
             mm.SetTempSensor(16 + 8 * math.sin(2*math.pi * t / (24*60*60)))
         time.sleep(period_ms / 1000)
 
@@ -105,10 +79,6 @@ def update_imu(mm: MessageManager, lock: threading.Lock, period_ms=20):
             t = time.time() - start_time
             for i in range(6):
                 imu[i] = amplitude * math.sin(freqs[i]*t + phases[i])
-            # C++ VERSION
-            #mm.setImus(imu)
-
-            # PYTHON VERSION
             mm.SetIMU(imu)
         time.sleep(period_ms / 1000)
 
@@ -131,23 +101,10 @@ if __name__ == "__main__":
                        baud=args.baud, debug=args.debug)
     sm.start()
 
-
     # Lock used to secure reading/writing from/to 'sd' (sensor data variable)
     lock = threading.Lock()
 
     # Start all sensor update threads
-    # C++ VERSION
-    '''
-    threads = [
-        threading.Thread(target=update_motor_encoders, args=(sm.comsMsgManagerSend,lock), daemon=True),
-        threading.Thread(target=update_home_switches, args=(sm.comsMsgManagerSend,lock), daemon=True),
-        threading.Thread(target=update_potentiometers, args=(sm.comsMsgManagerSend,lock), daemon=True),
-        threading.Thread(target=update_ref_diode, args=(sm.comsMsgManagerSend,lock), daemon=True),
-        threading.Thread(target=update_temperature, args=(sm.comsMsgManagerSend,lock), daemon=True),
-        threading.Thread(target=update_imu, args=(sm.comsMsgManagerSend,lock), daemon=True),
-    ]
-    '''
-    # PYTHON VERSION
     threads = [
         threading.Thread(target=update_motor_encoders, args=(sm.msgManagerSend,lock), daemon=True),
         threading.Thread(target=update_home_switches, args=(sm.msgManagerSend,lock), daemon=True),
@@ -165,24 +122,7 @@ if __name__ == "__main__":
     try:
         while True:
             with lock:
-                """
-                # C++ VERSION
-                sm.comsMsgManagerSend.packPayload()
-                payload = sm.comsMsgManagerSend.getPayload()
 
-                print("Sending message with mask:", sm.comsMsgManagerSend.mask)
-                print("Sending message with length:", sm.comsMsgManagerSend.length)
-                print("Sending message with msg:", payload[:sm.comsMsgManagerSend.length])
-
-                sm.send(0xFF) #Send start byte
-                sm.send(sm.comsMsgManagerSend.mask) #Send mask byte
-                sm.send(sm.comsMsgManagerSend.length) #Send length byte
-                sm.send(payload[:sm.comsMsgManagerSend.length])
-                
-                sm.comsMsgManagerSend.mask = 0
-                """
-
-                #PYTHON VERSION
                 sm.msgManagerSend.PackPayloadFromData()
                 msg = sm.msgManagerSend.payload[:sm.msgManagerSend.length]
                 
@@ -192,7 +132,6 @@ if __name__ == "__main__":
                 sm.send(msg)
 
                 sm.msgManagerSend.mask = 0
-
 
             time.sleep(update_period / 1000)
     except KeyboardInterrupt:

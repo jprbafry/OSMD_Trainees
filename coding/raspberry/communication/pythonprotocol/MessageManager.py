@@ -15,9 +15,8 @@ WAIT_FOR_PAYLOAD = 4
 START_BYTE = 0xFF
 
 class MessageManager:
-    def __init__(self, serial):
-        self.serial = serial
 
+    def __init__(self):
         self.data = {
             'motor_encoders': [0] * 4,    # uint16_t[4]
             'home_switches': [0] * 4,     # uint8_t[4]
@@ -62,87 +61,46 @@ class MessageManager:
 
         self.length = ptr
 
-        print(f"Packed payload length: {self.length} bytes")
-
-    def SendMessage(self):
-        new_mask = self.PackPayloadFromData()
-        
-        self.serial.write(struct.pack('<B', START_BYTE))
-        self.serial.write(struct.pack('<B', self.mask))
-        self.serial.write(struct.pack('<B', self.length))
-        self.serial.write(self.payload[:self.length])
-        
-        self.mask = new_mask
-
     def LoadDataFromPayload(self):
         ptr = 0
-
-        #print(f"Payload: {self.payload}")
         
         if self.mask & MOTOR_ENCODER_MASK:
             self.data['motor_encoders'] = list(struct.unpack_from('<4H', self.payload, ptr))
             ptr += 4 * 2
 
-         #   print("Updating motor encoderse")
-
         if self.mask & HOME_SWITCH_MASK:
             self.data['home_switches'] = list(struct.unpack_from('<4B', self.payload, ptr))
             ptr += 4 * 1
-
-          #  print("Updating home switches")
 
         if self.mask & POTENTIOMETER_MASK:
             self.data['potentiometers'] = list(struct.unpack_from('<2H', self.payload, ptr))
             ptr += 2 * 2
 
-           # print("Updating potentiometers")
-
         if self.mask & REF_DIODE_MASK:
             (self.data['ref_diode']) = struct.unpack_from('<H', self.payload, ptr)
             ptr += 2
-
-            #print("Updating ref diode")
 
         if self.mask & TEMP_SENSOR_MASK:
             (self.data['temp_sensor']) = struct.unpack_from('<f', self.payload, ptr)
             ptr += 4
 
-            #print("Updating temp sensor")
-
         if self.mask & IMU_MASK:
             self.data['imu'] = list(struct.unpack_from('<6f', self.payload, ptr))
             ptr += 6 * 4
 
-            #print("Updating imus")
-
-    def ReadMessage(self):
-        b = self.serial.read(1)
-        
-        if not b:
-            return  
-
+    def ReadMessage(self, b): 
         b = b[0]  
-
-        #print(f"Read byte: {b}")
 
         if self.readState == WAIT_FOR_START:
             if b == START_BYTE:
-         #       print("Found START_BYTE")
                 self.readState = WAIT_FOR_MASK
 
         elif self.readState == WAIT_FOR_MASK:
-            
             self.mask = b
-
-          #  print(f"Mask from message: {self.mask}")
-
             self.readState = WAIT_FOR_LENGTH
 
         elif self.readState == WAIT_FOR_LENGTH:
             self.length = b
-
-           # print(f"Length from message: {self.length}")
-
             self.payload_index = 0
             self.readState = WAIT_FOR_PAYLOAD
 
@@ -151,11 +109,10 @@ class MessageManager:
             self.payload_index += 1
 
             if self.payload_index >= self.length:
-            #    print("Found a complete message")
                 self.LoadDataFromPayload()
                 self.readState = WAIT_FOR_START
 
-    def readMessageSimulation(self, line):
+    def ReadMessageSimulation(self, line):
         if len(line) == 0:
             return
 

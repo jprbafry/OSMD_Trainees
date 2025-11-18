@@ -3,8 +3,6 @@ import argparse
 from dash_pygame.GUI.panel import Panel
 
 from communication.mux_tx_rx import SerialManager
-from communication.protocol import string_to_sensor_data
-
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Dashboard")
@@ -22,31 +20,22 @@ if __name__ == "__main__":
     sm = SerialManager(simulate=args.simulate, name='A', port=args.port, baud=args.baud, debug=args.debug)
 
     def on_receive():
-        # C++ VERSION
-        '''
-        sensors = sm.comsMsgManagerReceive.getSensors()
-
-        panel.bars[0].update_cur_val(sensors.temp_sensor)
-        panel.bars[1].update_cur_val(sensors.ref_diode)
-
-        for i, plotter in enumerate(panel.plotters):
-            plotter.update_cur_val(sensors.imu[i])
-        '''
-        # PYTHON VERSION
-
         sensors = sm.msgManagerReceive.data
 
        # print(f"motor encoders: {sensors['motor_encoders'][0]}, {sensors['motor_encoders'][1]}, {sensors['motor_encoders'][2]}, {sensors['motor_encoders'][3]}")
        # print(f"home switches: {sensors['home_switches'][0]}, {sensors['home_switches'][1]}, {sensors['home_switches'][2]}, {sensors['home_switches'][3]}")
        # print(f"potentiometers: {sensors['potentiometers'][0]}, {sensors['potentiometers'][1]}")
-       # print(f"ref diode: {sensors['ref_diode']}, temperature: {sensors['temp_sensor']}")
-       # print(f"imu: {sensors['imu'][0]}, {sensors['imu'][1]}, {sensors['imu'][2]}, {sensors['imu'][3]}, {sensors['imu'][4]}, {sensors['imu'][5]}")
+       # print(f"ref diode: {sensors['ref_diode'][0]}, temperature: {sensors['temp_sensor'][0]}")
+        print(f"imu: {sensors['imu'][0]}, {sensors['imu'][1]}, {sensors['imu'][2]}, {sensors['imu'][3]}, {sensors['imu'][4]}, {sensors['imu'][5]}")
 
-        panel.bars[0].update_cur_val(sensors['temp_sensor'][0])
-        panel.bars[1].update_cur_val(sensors['ref_diode'][0])
+        try:
+            panel.bars[0].update_cur_val(sensors['temp_sensor'][0])
+            panel.bars[1].update_cur_val(sensors['ref_diode'][0])
 
-        for i, plotter in enumerate(panel.plotters):
-            plotter.update_cur_val(sensors['imu'][i])
+            for i, plotter in enumerate(panel.plotters):
+                plotter.update_cur_val(sensors['imu'][i])
+        except Exception as e:
+            print(f"Error updating dashboard: {e}")
         
     sm.on_receive = on_receive
     sm.start()

@@ -5,8 +5,6 @@ import logging
 import numpy as np
 
 from communication.pythonprotocol.MessageManager import MessageManager
-from communication.ComsModule import MessageManager as ComsMessageManager
-
 
 try:
     import serial
@@ -23,7 +21,7 @@ logger.addHandler(ch) # attach handler
 
 # Simulated serial port using text files for inter-process comms
 class FileBackedFakeSerial:
-
+    
     def __init__(self, name):
         self.name = name.upper()
         base = os.path.dirname(__file__)
@@ -41,16 +39,10 @@ class FileBackedFakeSerial:
             open(f, 'a').close()
 
     def write(self, data: bytes):
-       # print(f"Writing in TX: {data}")
         with open(self.write_file, 'a', encoding='utf-8') as f:
-            if(type(data) == int):
+            if (type(data) == int):
                 f.write(str(data))
-            # C++ VERSION
-            #elif(type(data) == np.ndarray):
-
-            # PYTHON VERSION
-            elif(type(data) == bytearray):
-                
+            elif (type(data) == bytearray):
                 for d in data:
                     f.write(str(d) + " ")
             f.write("\n")
@@ -65,8 +57,6 @@ class FileBackedFakeSerial:
                 f.seek(0)
                 f.writelines(lines[1:])
                 f.truncate()
-
-        #print(f"Reading line: {line}")
         return line.encode('ascii')
 
     def flush(self):
@@ -112,19 +102,12 @@ class SerialManager:
                 self.ser = FileBackedFakeSerial(name or 'A')
                 self.simulate = True
         try:
-            self.msgManagerReceive = MessageManager(self.ser)
-            #self.msgManagerSend = MessageManager(self.ser)
-
+            self.msgManagerReceive = MessageManager()
+            self.msgManagerSend = MessageManager()
         except Exception as e:
             logger.error(f"Error initializing MessageManager: {e}")
 
-        try:    
-            self.comsMsgManagerReceive = ComsMessageManager()
-            self.comsMsgManagerSend = ComsMessageManager()
-        except Exception as e:
-            logger.error(f"Error initializing Coms MessageManager: {e}")    
-
-        #self.tx_thread = threading.Thread(target=self.tx_loop, daemon=True)
+        self.tx_thread = threading.Thread(target=self.tx_loop, daemon=True)
         self.rx_thread = threading.Thread(target=self.rx_loop, daemon=True)
 
     # Transmission Thread (function)
@@ -144,41 +127,44 @@ class SerialManager:
     def rx_loop(self):
         while self.running.is_set():
             try:
-                self.msgManagerReceive.ReadMessage()
-                self.on_receive()
-                # SIMULATION
-                '''
-                try:
+                if type(self.ser) == FileBackedFakeSerial:
                     line = self.ser.readline().decode('ascii', errors='ignore').split()
-                except Exception as e:
-                    print(f"Error reading line: {e}")
-                    return
-                
-                if line:
-                    if self.on_receive:
+                    if line and self.on_receive:
+                        self.msgManagerReceive.ReadMessageSimulation(line)                        
+                        self.on_receive()
+
+                elif type(self.ser) == serial.Serial:
+                    
+                    try:
+                        b = self.ser.read(1)
+                    except Exception as e:
+                        logger.error(f"Error reading byte: {e}")
+
+                    if b and self.on_receive:
+
                         try:
-                            # C++ VERSION
-                            # self.comsMsgManagerReceive.readMessageSimulation(line)
+                            self.msgManagerReceive.ReadMessage(b)
+                        except Exception as e:
+                            logger.error(f"Error reading message: {e}")
 
-                            # PYTHON VERSION
-                            self.msgManagerReceive.readMessageSimulation(line)
-
-                            line = self.ser.read(1)
-                        
+                        try:
                             self.on_receive()
                         except Exception as e:
-                            print(f"Error in on_receive callback: {e}")
-                '''
+                            logger.error(f"Error calling on_receive: {e}")
+
             except Exception as e:
-                #logger.error(f"RX error: {e}")
+                logger.error(f"RX error: {e}")
                 pass
             time.sleep(0.005)
         logger.debug("RX thread stopped")
         
     def start(self):
         self.running.set()
-        #self.tx_thread.start()
+        if type(self.ser) == FileBackedFakeSerial:
+            self.tx_thread.start()
+            print("TX thread started")
         self.rx_thread.start()
+        print("RX thread started")
         logger.info("SerialManager started")
 
     def stop(self):
