@@ -1,17 +1,17 @@
 import pygame
 import threading
+import time, random
 from dash_pygame.GUI import widget
 
 
 class LogBox(widget.Widget):
-    """A simple scrolling text box for displaying logs in the dashboard."""
     def __init__(self, x, y, width, height, font, max_lines=10, auto=True):
         super().__init__(x, y)
         self.width = width
         self.height = height
         self.font = font
         self.auto = auto
-        self.max_lines = max_lines
+        self.max_lines = None
         self.lines = []
         self.lock = threading.Lock()
         self.bg_color = (20, 20, 20)
@@ -26,9 +26,9 @@ class LogBox(widget.Widget):
         """Add a new line to the log box."""
         with self.lock:
             self.lines.append(text)
-            # Keep only the latest N lines
-            if len(self.lines) > self.max_lines:
-                self.lines = self.lines[-self.max_lines:]
+            # # Keep only the latest N lines
+            # if len(self.lines) > self.max_lines:
+            #     self.lines = self.lines[-self.max_lines:]
 
     def draw(self, surface):
         if not self.visible:
@@ -41,15 +41,19 @@ class LogBox(widget.Widget):
 
         # Draw text lines
         with self.lock:
+            line_height = self.font.get_height() + 2
+            max_visible_lines = self.height // line_height
+        
+
+            visible_lines = self.lines[-max_visible_lines:]
             y_offset = self.y + 5
-            for line in self.lines:
+
+            for line in visible_lines:
                 text_surface = self.font.render(line, True, self.text_color)
                 surface.blit(text_surface, (self.x + 5, y_offset))
-                y_offset += text_surface.get_height() + 2
+                y_offset += line_height
 
     def _auto_update(self):
-        """Automatically add demo messages if auto mode is enabled."""
-        import time, random
         demo_msgs = [
             "System initialized.",
             "Sensor A connected.",
@@ -63,9 +67,8 @@ class LogBox(widget.Widget):
             time.sleep(1.5)
 
 
-# ----------------------------------------------------------
-# Standalone test (for development)
-# ----------------------------------------------------------
+
+#Main
 if __name__ == "__main__":
     pygame.init()
     screen = pygame.display.set_mode((400, 300))
