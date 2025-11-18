@@ -100,8 +100,6 @@ def parse_args():
     return parser.parse_args()
 
 
-
-
 # Main function
 if __name__ == "__main__":
 

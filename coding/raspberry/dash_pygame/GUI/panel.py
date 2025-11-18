@@ -8,6 +8,9 @@ from dash_pygame.GUI import slider
 from dash_pygame.GUI import label
 from dash_pygame.GUI import logbox
 from dash_pygame.GUI import indicator
+from dash_pygame.GUI.camera_widget import CameraWidget
+from camera.fake_camera import Picamera2
+
 
 
 class Panel:
@@ -64,10 +67,17 @@ class Panel:
         ]
 
         #Logbox
-        self.logbox = logbox.LogBox(900, 500, 500, 200, self.font_small, max_lines=8, auto=self.auto)
+        self.logbox = logbox.LogBox(900, 450, 500, 200, self.font_small, max_lines=8, auto=self.auto)
         self.logbox.add_line("System initialized...")
         self.logbox.add_line("Dashboard started.")
         self._last_log_message = None
+
+        #Camera
+        self.picam2 = Picamera2()
+        self.picam2.start()
+
+        self.camera_widget = CameraWidget(1020, 100, 250, 200, self.picam2, auto=auto)
+        
 
 
         #General labels
@@ -136,7 +146,7 @@ class Panel:
         self.labels.append(lbl_log)
 
         # All widgets together for easy drawing
-        self.widgets = self.knobs + self.sliders + self.plotters + self.bars + self.knobs_indicators + self.sliders_indicators + self.labels + [self.logbox]
+        self.widgets = self.knobs + self.sliders + self.plotters + self.bars + self.knobs_indicators + self.sliders_indicators + self.labels + [self.logbox, self.camera_widget]
 
     def draw(self):
         """Draw all widgets"""
@@ -191,8 +201,6 @@ class Panel:
 
         for i in range(3):
             v = self.plotters[i].cur_val
-            print("accelerometer: ",i,v)
-
             value = (
                 f"{names[i]}: {v:.2f}"
                 if isinstance(v, (int, float))
@@ -230,6 +238,9 @@ class Panel:
     def tick(self, fps=60):
         """Control frame rate"""
         self.clock.tick(fps)
+
+    def stop(self):
+        self.picam2.stop()
 
 
 if __name__ == "__main__":

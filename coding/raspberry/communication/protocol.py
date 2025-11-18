@@ -11,9 +11,6 @@ class SensorData(Structure):
         ("imu", c_float * 6)
     ]
 
-    def __new__(cls):
-        return super(SensorData, cls).__new__(cls)
-
     def __init__(self):
         super().__init__()
         self.system_log = ""
