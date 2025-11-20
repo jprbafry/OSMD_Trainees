@@ -11,6 +11,10 @@ class SensorData(Structure):
         ("imu", c_float * 6)
     ]
 
+    def __init__(self):
+        super().__init__()
+        self.system_log = ""
+
 # Serialize SensorData to string
 def sensor_data_to_string(sensor: SensorData) -> str:
     values = []
@@ -20,6 +24,7 @@ def sensor_data_to_string(sensor: SensorData) -> str:
     values.append(sensor.ref_diode)
     values.append(f"{sensor.temp_sensor:.3f}")
     values.extend(f"{v:.3f}" for v in sensor.imu[:])
+    values.append(f'"{sensor.system_log}"')
     return ",".join(str(v) for v in values)
 
 # Deserialize string to SensorData
@@ -32,4 +37,5 @@ def string_to_sensor_data(msg: str) -> SensorData:
     sd.ref_diode = int(parts[10])
     sd.temp_sensor = float(parts[11])
     sd.imu[:] = [float(parts[i]) for i in range(12,18)]
+    sd.system_log = parts[18].strip('"')
     return sd

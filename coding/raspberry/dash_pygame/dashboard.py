@@ -19,7 +19,8 @@ if __name__ == "__main__":
     args = parse_args()
     panel = Panel(args.autodata)
 
-    sm = SerialManager(simulate=args.simulate, name='A', port=args.port, baud=args.baud, debug=args.debug)
+    sm = SerialManager(simulate=args.simulate, name='B', port=args.port,baud=args.baud, debug=args.debug)
+
 
     def on_receive(msg):
         sd = string_to_sensor_data(msg)
@@ -37,6 +38,20 @@ if __name__ == "__main__":
         # Update plotters
         for i, plotter in enumerate(panel.plotters):
             plotter.update_cur_val(sd.imu[i])
+
+        # Update knobs
+        for i, knob in enumerate(panel.knobs):
+            knob.update_cur_val(sd.motor_encoders[i]*360/512)
+
+        # Update sliders
+        for i, slider in enumerate(panel.sliders):
+            slider.update_cur_val(sd.motor_encoders[i+2]*360/512)  # slider maps to motor_encoders[2,3]
+        
+        #Update logbox ONLY when log message changes
+        if sd.system_log and sd.system_log != panel._last_log_message:
+            panel.logbox.add_line(sd.system_log)
+            panel._last_log_message = sd.system_log
+
 
     sm.on_receive = on_receive
     sm.start()

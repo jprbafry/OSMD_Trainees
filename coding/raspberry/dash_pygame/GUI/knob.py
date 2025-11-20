@@ -9,7 +9,7 @@ from dash_pygame.GUI import widget
 
 #Knob class
 class Knob(widget.Widget):
-    def __init__(self, cx, cy, radius, min_val, max_val, font, auto=False):
+    def __init__(self, cx, cy, radius, font, min_val=0, max_val=360, auto=False):
         # Call base Widget initializer
         super().__init__(x=cx, y=cy, width=radius*2, height=radius*2,
                          min_val=min_val, max_val=max_val)
@@ -60,7 +60,7 @@ if __name__ == "__main__":
         cy = 150
         min_val = 0
         max_val = 360
-        knob = Knob(cx, cy, radius, min_val, max_val, font, auto=True)
+        knob = Knob(cx, cy, radius, font, min_val, max_val, auto=True)
         return [knob]   # always return a list of widgets
 
 

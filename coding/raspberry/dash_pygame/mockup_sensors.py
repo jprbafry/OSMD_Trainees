@@ -2,8 +2,8 @@ import threading
 import time
 import math
 import random
-import os
 import argparse
+import os
 
 from communication.mux_tx_rx import SerialManager
 from communication.protocol import SensorData, sensor_data_to_string
@@ -72,6 +72,20 @@ def update_imu(sd: SensorData, lock: threading.Lock, period_ms=20):
                 sd.imu[i] = amplitude * math.sin(freqs[i]*t + phases[i])
         time.sleep(period_ms / 1000)
 
+def update_system_log (sd: SensorData, lock: threading.Lock, period_ms=1500):
+    messages = [
+        "INFO: System OK",
+        "INFO: Motor encoders synced",
+        "INFO: Temperature stable", 
+        "WARNING: IMU slow response",
+        "WARNING: High temperature detected",
+        "ERROR: Homing sensor timeout",
+    ]
+
+    while True:
+        with lock:
+            sd.system_log = random.choice(messages)
+        time.sleep(period_ms / 1000)
 
 
 
@@ -86,17 +100,13 @@ def parse_args():
     return parser.parse_args()
 
 
-
-
-
-
 # Main function
 if __name__ == "__main__":
 
     args = parse_args()
 
     # Serial manager
-    sm = SerialManager(simulate=args.simulate, name='B', port=args.port,
+    sm = SerialManager(simulate=args.simulate, name='A',port=args.port,
                        baud=args.baud, debug=args.debug)
     sm.start()
 
@@ -122,6 +132,7 @@ if __name__ == "__main__":
         threading.Thread(target=update_ref_diode, args=(sd,lock), daemon=True),
         threading.Thread(target=update_temperature, args=(sd,lock), daemon=True),
         threading.Thread(target=update_imu, args=(sd,lock), daemon=True),
+        threading.Thread(target=update_system_log, args=(sd,lock), daemon=True),
     ]
     for t in threads:
         t.start()

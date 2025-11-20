@@ -28,10 +28,11 @@ class Plotter(widget.Widget):
     def draw(self, surface):
         if not self.visible:
             return
+        #Draw background 
         pygame.draw.rect(surface, self.bg, (self.x, self.y, self.width, self.height))
-        with self.lock:
+        with self.lock:#Get a copy of data buffer
             ydata = list(self.data_buffer)
-        if len(ydata) > 1:
+        if len(ydata) > 1: #Draw data lines if data exists
             scale_y = self.height // 2 - 10
             prev_x = self.x
             prev_y = self.y + self.height // 2 - int(ydata[0] * scale_y)

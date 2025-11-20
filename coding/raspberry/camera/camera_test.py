@@ -1,10 +1,12 @@
 import pygame
-from camera.fake_picamera2 import Picamera2
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from camera.fake_camera import Picamera2
 import cv2
 import numpy as np
 
 # Initialize pygame
-window_size = 1000
+window_size = 400      
 screen = pygame.display.set_mode((window_size, window_size))
 pygame.display.set_caption("FakeCam Pygame")
 
